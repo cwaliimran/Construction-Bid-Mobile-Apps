@@ -10,8 +10,10 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {fonts} from '../../utls/styles';
+import {INITIAL_ITEMS} from '../../data/viewbid/INITIAL_ITEMS';
 import {Swipeable} from 'react-native-gesture-handler';
+import styles from './styles';
+
 const Home = () => {
   const navigation = useNavigation();
   const [showPopup, setShowPopup] = useState(false);
@@ -24,6 +26,8 @@ const Home = () => {
     {id: '06', title: 'Bid Address', created: '18 Jan 2025'},
     {id: '07', title: 'Bid Address', created: '18 Jan 2025'},
   ]);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [selectedBidId, setSelectedBidId] = useState(null);
 
   const handleLogout = () => {
     setShowPopup(false);
@@ -37,8 +41,8 @@ const Home = () => {
 
   const handleDelete = id => {
     setBids(bids.filter(bid => bid.id !== id));
+    setDeleteConfirmVisible(false);
   };
-
   const PopupMenu = () => (
     <Modal
       transparent={true}
@@ -74,45 +78,99 @@ const Home = () => {
       </TouchableWithoutFeedback>
     </Modal>
   );
+  const DeleteConfirmationModal = () => (
+    <Modal
+      transparent={true}
+      visible={deleteConfirmVisible}
+      animationType="fade">
+      <TouchableWithoutFeedback onPress={() => setDeleteConfirmVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback>
+            <View style={styles.confirmationModal}>
+              <Image
+                source={require('../../../assets/icons/deletemodal.png')}
+                style={styles.confirmationImage}
+              />
+              <Text style={styles.confirmation}>Confirmation</Text>
+              <Text style={styles.confirmationText}>
+                Are you sure you want to delete this bid?
+              </Text>
+              <View style={styles.confirmationButtons}>
+                <TouchableOpacity
+                  style={styles.confirmButton}
+                  onPress={() => handleDelete(selectedBidId)}>
+                  <Text style={styles.confirmButtonText}>Yes</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setDeleteConfirmVisible(false)}>
+                  <Text style={styles.cancelButtonText}>Not Yet</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
 
   const renderBidItem = ({item}) => {
     const renderRightActions = () => (
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => handleDelete(item.id)}>
+        onPress={() => {
+          setSelectedBidId(item.id);
+          setDeleteConfirmVisible(true);
+        }}>
         <Image
           source={require('../../../assets/icons/delete.png')}
           style={styles.deleteIcon}
         />
       </TouchableOpacity>
     );
-
     return (
       <Swipeable renderRightActions={renderRightActions}>
-        <View style={styles.bidContainer}>
-          <View style={styles.greenBar}></View>
-          <View style={styles.bidContent}>
-            <View style={styles.numberWrapper}>
-              <Text style={styles.numberText}>{item.id}</Text>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('ViewBid', {
+              bidData: {
+                tittle: 'Jan 31st',
+                step: 1,
+                address: item.title,
+                area: '1000',
+                propertyType: 'Single Bedroom',
+                itemsByStep: INITIAL_ITEMS,
+                totalProjectCost: 50,
+                markupPercentage: 50,
+                finalCost: 75,
+              },
+            })
+          }>
+          <View style={styles.bidContainer}>
+            <View style={styles.greenBar}></View>
+            <View style={styles.bidContent}>
+              <View style={styles.numberWrapper}>
+                <Text style={styles.numberText}>{item.id}</Text>
+              </View>
+              <View style={styles.iconWrapper}>
+                <Image
+                  source={require('../../../assets/icons/pdf.png')}
+                  style={styles.icon}
+                />
+              </View>
+              <View style={styles.textWrapper}>
+                <Text style={styles.bidTitle}>{item.title}</Text>
+                <Text style={styles.bidDate}>Created {item.created}</Text>
+              </View>
             </View>
-            <View style={styles.iconWrapper}>
+            <TouchableOpacity style={styles.editButton}>
               <Image
-                source={require('../../../assets/icons/pdf.png')}
-                style={styles.icon}
+                source={require('../../../assets/icons/edit.png')}
+                style={styles.editIcon}
               />
-            </View>
-            <View style={styles.textWrapper}>
-              <Text style={styles.bidTitle}>{item.title}</Text>
-              <Text style={styles.bidDate}>Created {item.created}</Text>
-            </View>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.editButton}>
-            <Image
-              source={require('../../../assets/icons/edit.png')}
-              style={styles.editIcon}
-            />
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
       </Swipeable>
     );
   };
@@ -131,6 +189,7 @@ const Home = () => {
           />
         </TouchableOpacity>
       </View>
+      <DeleteConfirmationModal />
       <PopupMenu />
 
       <View style={styles.titleAndFilter}>
@@ -163,193 +222,5 @@ const Home = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F6F6F6',
-    paddingHorizontal: 20,
-    paddingTop: 40,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 39,
-    height: 39,
-    resizeMode: 'contain',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(17, 4, 4, 0.4)',
-    justifyContent: 'flex-start',
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    resizeMode: 'contain',
-  },
-  titleAndFilter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    justifyContent: 'space-between',
-  },
-  myBidsTitle: {
-    fontWeight: '700',
-    fontSize: 24,
-    fontFamily: fonts.Medium,
-    color: '#333333',
-  },
-  filterButton: {
-    padding: 10,
-    marginRight: 0,
-  },
-  filterIcon: {
-    width: 35,
-    height: 35,
-    resizeMode: 'contain',
-  },
-  bidsList: {
-    marginBottom: 70,
-  },
-  bidContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    borderWidth: 0,
-    paddingLeft: 35,
-  },
-  greenBar: {
-    width: 8,
-    height: 85,
-    backgroundColor: '#00FFB7',
-    borderRadius: 4,
-    position: 'absolute',
-    left: 0,
-    top: 0,
-  },
-  bidContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  numberWrapper: {
-    position: 'absolute',
-    top: -16,
-    left: -40,
-    backgroundColor: '#0060CE',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 5,
-  },
-  numberText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  iconWrapper: {
-    padding: 10,
-    borderRadius: 8,
-    marginRight: 15,
-  },
-  icon: {
-    width: 35,
-    height: 35,
-    resizeMode: 'contain',
-  },
-  textWrapper: {
-    flex: 1,
-  },
-  bidTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    fontFamily: fonts.Medium,
-    color: '#333333',
-  },
-  bidDate: {
-    fontSize: 12,
-    color: '#666666',
-  },
-  editButton: {
-    padding: 10,
-    borderRadius: 8,
-  },
-  editIcon: {
-    width: 35,
-    height: 35,
-    resizeMode: 'contain',
-  },
-  deleteButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    borderRadius: 8,
-    width: 100,
-  },
-  deleteIcon: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 30,
-    right: 30,
-    backgroundColor: '#1D75D8',
-    borderRadius: 50,
-    padding: 15,
-    elevation: 10,
-  },
-  addIcon: {
-    width: 25,
-    height: 25,
-    resizeMode: 'contain',
-  },
-  popupMenu: {
-    position: 'absolute',
-    top: 80, // Adjusted to be below header
-    right: 20,
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    minWidth: 150,
-    zIndex: 1000,
-  },
-  popupItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-  },
-  popupIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 12,
-  },
-  popupText: {
-    fontSize: 16,
-    color: '#333333',
-    fontFamily: fonts.Medium,
-  },
-  popupDivider: {
-    height: 1,
-    backgroundColor: '#E5E5E5',
-    marginVertical: 4,
-  },
-});
 
 export default Home;

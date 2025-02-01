@@ -282,7 +282,7 @@ const ProfileScreen = () => {
           <TouchableOpacity
             style={styles.editButton}
             onPress={() => setIsEditing(true)}>
-            <Text style={styles.editButtonText}>Edit Profile</Text>
+            <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -387,6 +387,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
+    fontWeight: 'bold',
     color: '#000000',
     marginBottom: 8,
     fontWeight: '500',
@@ -395,7 +396,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginBottom: 24,
+    borderBottomWidth: 1, // Adds a line below the text
+    borderBottomColor: '#E8E8E8', // Sets the color of the line
+    paddingBottom: 8, // Adds padding below the text, above the line
   },
+
   input: {
     height: 48,
     borderColor: '#E8E8E8',
@@ -411,13 +416,12 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: Platform.OS === 'ios' ? 32 : 16,
     backgroundColor: '#FFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E8E8E8',
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
   },
+
   footerWithKeyboard: {
     bottom: 0,
   },
@@ -449,7 +453,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   editButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#0060CE',
+    boxShadow: '0px 13px 27px 0pxrgba(26, 17, 157, 0.24)',
     borderRadius: 8,
     height: 48,
     justifyContent: 'center',
