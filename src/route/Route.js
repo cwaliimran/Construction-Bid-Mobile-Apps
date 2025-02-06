@@ -1,7 +1,7 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {AuthProvider, useAuth} from './AuthContext';
 import AddBid from '../pages/bid/addbid/AddBid';
 import ViewBid from '../pages/bid/viewbid/ViewBid';
 import SignIn from '../pages/auth/signin/SignIn';
@@ -12,76 +12,76 @@ import AddItem from '../pages/item/additem/AddItem';
 import EditItem from '../pages/item/edititem/EditItem';
 import ProfileScreen from '../pages/user/ProfileScreen';
 import ResetPassword from '../pages/auth/resetpassword/ResetPassword';
+
 const Stack = createStackNavigator();
+
+const NavigationContent = () => {
+  const {isLoggedIn} = useAuth();
+
+  return (
+    <Stack.Navigator initialRouteName={isLoggedIn ? 'Home' : 'SignIn'}>
+      <Stack.Screen
+        name="SignIn"
+        component={SignIn}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Home"
+        component={Home}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddBid"
+        component={AddBid}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="SubmitBid"
+        component={SubmitBid}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="UpdateBid"
+        component={UpdateBid}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ProfileScreen"
+        component={ProfileScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ResetPassword"
+        component={ResetPassword}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddItem"
+        component={AddItem}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ViewBid"
+        component={ViewBid}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="EditItem"
+        component={EditItem}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
+    // </NavigationContainer>
+  );
+};
 
 const Route = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="SignIn"
-          component={SignIn} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Home"
-          component={Home} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="AddBid"
-          component={AddBid} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="SubmitBid"
-          component={SubmitBid} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="UpdateBid"
-          component={UpdateBid} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="ProfileScreen"
-          component={ProfileScreen} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="ResetPassword"
-          component={ResetPassword} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="AddItem"
-          component={AddItem} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="ViewBid"
-          component={ViewBid} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="EditItem"
-          component={EditItem} // Placeholder component
-          options={{headerShown: false}}
-        />
-        {/* 
-        <Stack.Screen
-          name="Profile"
-          component={Profile} // Placeholder component
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="EditProfile"
-          component={EditProfile} // Placeholder component
-          options={{headerShown: false}}
-        />{' '}
-        */}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <NavigationContent />
+      </NavigationContainer>
+    </AuthProvider>
   );
 };
 

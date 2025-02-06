@@ -1,37 +1,68 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
+  RefreshControl,
   Image,
-  StyleSheet,
   TouchableOpacity,
   FlatList,
   Modal,
   TouchableWithoutFeedback,
 } from 'react-native';
+import {useAuth} from '../../route/AuthContext';
 import {useNavigation} from '@react-navigation/native';
-import {INITIAL_ITEMS} from '../../data/viewbid/INITIAL_ITEMS';
 import {Swipeable} from 'react-native-gesture-handler';
 import styles from './styles';
 
 const Home = () => {
   const navigation = useNavigation();
+  const {logout, token} = useAuth(); // Use auth context
   const [showPopup, setShowPopup] = useState(false);
-  const [bids, setBids] = useState([
-    {id: '01', title: 'Bid Address', created: '13 Jan 2025'},
-    {id: '02', title: 'Bid Address', created: '14 Jan 2025'},
-    {id: '03', title: 'Bid Address', created: '15 Jan 2025'},
-    {id: '04', title: 'Bid Address', created: '16 Jan 2025'},
-    {id: '05', title: 'Bid Address', created: '17 Jan 2025'},
-    {id: '06', title: 'Bid Address', created: '18 Jan 2025'},
-    {id: '07', title: 'Bid Address', created: '18 Jan 2025'},
-  ]);
+  const [bids, setBids] = useState([]);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [selectedBidId, setSelectedBidId] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchBids = async () => {
+    setRefreshing(true);
+    try {
+      const response = await fetch('http://192.168.18.234:5000/home/bids', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const json = await response.json();
+      if (json.message === 'Bids fetched successfully') {
+        setBids(
+          json.bids.map((bid, index) => ({
+            id: String(index + 1),
+            title: bid.address,
+            created: new Date(bid.createdAt).toLocaleDateString(),
+          })),
+        );
+      }
+    } catch (error) {
+      console.error('Failed to fetch bids', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBids();
+  }, []);
+
+  const onRefresh = () => {
+    fetchBids();
+  };
 
   const handleLogout = () => {
-    setShowPopup(false);
-    navigation.navigate('SignIn');
+    logout(); // Use context's logout function
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'SignIn'}],
+    });
   };
 
   const handleProfilePress = () => {
@@ -43,6 +74,7 @@ const Home = () => {
     setBids(bids.filter(bid => bid.id !== id));
     setDeleteConfirmVisible(false);
   };
+
   const PopupMenu = () => (
     <Modal
       transparent={true}
@@ -78,6 +110,7 @@ const Home = () => {
       </TouchableWithoutFeedback>
     </Modal>
   );
+
   const DeleteConfirmationModal = () => (
     <Modal
       transparent={true}
@@ -128,21 +161,16 @@ const Home = () => {
         />
       </TouchableOpacity>
     );
+
     return (
       <Swipeable renderRightActions={renderRightActions}>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('ViewBid', {
               bidData: {
-                tittle: 'Jan 31st',
-                step: 1,
-                address: item.title,
-                area: '1000',
-                propertyType: 'Single Bedroom',
-                itemsByStep: INITIAL_ITEMS,
-                totalProjectCost: 50,
-                markupPercentage: 50,
-                finalCost: 75,
+                title: item.title,
+                created: item.created,
+                id: item.id,
               },
             })
           }>
@@ -209,6 +237,9 @@ const Home = () => {
         renderItem={renderBidItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.bidsList}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
 
       <TouchableOpacity

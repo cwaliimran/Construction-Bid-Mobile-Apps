@@ -16,8 +16,10 @@ import {useNavigation} from '@react-navigation/native'; // Add this import
 import {Picker} from '@react-native-picker/picker';
 import styles from './styles';
 import {INITIAL_ITEMS} from '../../../data/addbid/INITIAL_ITEMS';
+import {useColorScheme} from 'react-native';
 // import RenderCostSummary from '../../../components/addbid/RenderCostSummary';
 // Constants
+
 const PROPERTY_OPTIONS = [
   {label: 'Choose your property type', value: ''},
   {label: 'Single Bedroom', value: 'single_bedroom'},
@@ -35,6 +37,7 @@ const STEP_DETAILS = {
 };
 
 const AddBid = () => {
+  const isDarkMode = useColorScheme() === 'dark';
   // State Management
   const navigation = useNavigation(); // Add this line4
   const goToHomePage = () => navigation.navigate('Home');
@@ -231,7 +234,11 @@ const AddBid = () => {
           source={require('../../../../assets/icons/location.png')}
           style={styles.icon}
         />
-        <TextInput placeholder="Enter your address" style={styles.input} />
+        <TextInput
+          placeholder="Enter your address"
+          style={styles.input}
+          placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'} // Adjust color for dark mode
+        />
       </View>
       <Text style={styles.heading}>Area SQ.FT</Text>
       <View style={styles.inputContainer}>
@@ -242,6 +249,7 @@ const AddBid = () => {
         <TextInput
           placeholder="Enter Area (sq.ft)"
           style={styles.input}
+          placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
           keyboardType="numeric"
         />
       </View>
@@ -392,6 +400,7 @@ const AddBid = () => {
                 placeholder="Unit Cost"
                 style={styles.input}
                 value={item.unitCost}
+                placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
                 keyboardType="numeric"
                 onChangeText={text =>
                   handleNumericInput(step, item.id, 'unitCost', text)
@@ -401,6 +410,7 @@ const AddBid = () => {
                 placeholder="Quantity"
                 style={styles.input}
                 value={item.quantity}
+                placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
                 keyboardType="numeric"
                 onChangeText={text =>
                   handleNumericInput(step, item.id, 'quantity', text)
@@ -409,6 +419,7 @@ const AddBid = () => {
               <TextInput
                 placeholder="Total"
                 style={styles.input}
+                placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
                 value={item.total}
                 editable={false}
               />
@@ -448,6 +459,7 @@ const AddBid = () => {
           value={markupPercentage}
           onChangeText={setMarkupPercentage}
           keyboardType="numeric"
+          placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
           placeholder="8.1 %"
         />
       </View>

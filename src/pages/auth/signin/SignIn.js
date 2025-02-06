@@ -1,22 +1,21 @@
+// SignIn.js
 import React, {useState} from 'react';
 import {
   View,
   Text,
   TextInput,
   Image,
-  StyleSheet,
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
 } from 'react-native';
+import {useAuth} from '../../../route/AuthContext';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 
-
-// Validation schema using Yup
 const SignInSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is required'),
   password: Yup.string()
@@ -25,8 +24,34 @@ const SignInSchema = Yup.object().shape({
 });
 
 const SignIn = () => {
-  const navigation = useNavigation(); // Use navigation hook to navigate between screens
+  const navigation = useNavigation();
+  const {login} = useAuth();
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [apiError, setApiError] = useState('');
+
+  const handleSignIn = async values => {
+    try {
+      let response = await fetch('http://192.168.18.234:5000/users/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      let jsonResponse = await response.json();
+
+      if (response.ok) {
+        login(); // Use context to set login state
+        navigation.navigate('Home');
+      } else {
+        throw new Error(jsonResponse.error || 'Unable to login');
+      }
+    } catch (error) {
+      setApiError(error.message);
+      console.error('Login error:', error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,11 +71,7 @@ const SignIn = () => {
         <Formik
           initialValues={{email: '', password: ''}}
           validationSchema={SignInSchema}
-          onSubmit={values => {
-            // Handle form submission and navigate to the home screen
-            console.log(values);
-            navigation.navigate('Home'); // Navigates to the Home screen
-          }}>
+          onSubmit={handleSignIn}>
           {({
             handleChange,
             handleBlur,
@@ -106,8 +127,8 @@ const SignIn = () => {
                     <Image
                       source={
                         confirmPasswordVisible
-                          ? require('../../../../assets/icons/eye-open.png') // Image for showing password
-                          : require('../../../../assets/icons/eye-closed.png') // Image for hiding password
+                          ? require('../../../../assets/icons/eye-open.png')
+                          : require('../../../../assets/icons/eye-closed.png')
                       }
                       style={styles.eyeIconImage}
                     />
@@ -117,6 +138,10 @@ const SignIn = () => {
                   <Text style={styles.errorText}>{errors.password}</Text>
                 )}
               </View>
+
+              {apiError ? (
+                <Text style={styles.errorText}>{apiError}</Text>
+              ) : null}
 
               <TouchableOpacity
                 style={styles.signInButtonContainer}
@@ -132,13 +157,6 @@ const SignIn = () => {
             </>
           )}
         </Formik>
-
-        {/* <View style={styles.bottomContainer}>
-          <Text style={styles.createAccountText}>Don’t have an account? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.createAccountLink}>Create new account</Text>
-          </TouchableOpacity>
-        </View> */}
       </ScrollView>
     </SafeAreaView>
   );

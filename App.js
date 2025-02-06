@@ -14,7 +14,7 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#F8F8F8" barStyle="dark-content" />
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       {!loader ? <SplashScreen /> : <Route />}
     </View>
   );

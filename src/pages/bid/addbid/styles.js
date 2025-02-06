@@ -72,7 +72,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
-    overflow: 'hidden',
+    overflow: 'visible', // Changed from 'hidden' to 'visible'
+    position: 'relative', // Added to establish positioning context
+    zIndex: 1, // Ensure proper layering
   },
   leftIndicator: {
     position: 'absolute',
@@ -103,15 +105,15 @@ const styles = StyleSheet.create({
     zIndex: 998,
   },
 
-  // Update itemContainer to allow overflow
-  itemContainer: {
-    flexDirection: 'column',
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    overflow: 'visible', // Changed from 'hidden' to 'visible'
-  },
+  // // Update itemContainer to allow overflow
+  // itemContainer: {
+  //   flexDirection: 'column',
+  //   marginBottom: 10,
+  //   borderWidth: 1,
+  //   borderColor: '#ccc',
+  //   borderRadius: 10,
+  //   overflow: 'visible', // Changed from 'hidden' to 'visible'
+  // },
   itemDetails: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -228,7 +230,7 @@ const styles = StyleSheet.create({
   itemActionsMenu: {
     position: 'absolute',
     right: 10,
-    top: 40,
+    top: -10, // Moved up to appear above the item
     backgroundColor: '#F1F8FF',
     borderRadius: 8,
     padding: 8,
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    zIndex: 2,
+    zIndex: 1000, // Higher than the overlay
   },
 
   lastMenuItem: {
