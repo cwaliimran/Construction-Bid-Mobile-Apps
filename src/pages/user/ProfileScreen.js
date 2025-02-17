@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -14,8 +14,11 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import styles from './styles';
-import {useNavigation} from '@react-navigation/native';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {useDispatch, useSelector} from 'react-redux';
+import ActivityIndicatorModal from '../../components/modal/activity-indicator-modal';
+import GeneralModal from '../../components/modal/general-modal';
+import {getCurrentUserProfile} from '../../store/slices/user';
 
 const userData = {
   name: 'John Doe',
@@ -24,8 +27,15 @@ const userData = {
   profileBorder: require('../../../assets/icons/profile-border.png'),
 };
 
-const ProfileScreen = () => {
-  const navigation = useNavigation();
+const ProfileScreen = ({navigation}) => {
+  // API data
+  const dispatch = useDispatch();
+  const [err, setErr] = useState(false);
+  const [errMsg, setErrMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const {user} = useSelector(state => state.auth);
+  const [profileData, setProfileData] = useState('');
+
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(userData.name);
   const [email, setEmail] = useState(userData.email);
@@ -175,16 +185,40 @@ const ProfileScreen = () => {
 
   const handleResetPassword = () => {
     navigation.navigate('ResetPassword', {email: email});
-    // Passing email as a parameter to pre-fill the email field on reset screen if needed
   };
 
-  // Rest of the component remains the same...
+  useEffect(() => {
+    console.log(user);
+    
+    dispatch(getCurrentUserProfile(user?.userId))
+      .then(response => {
+        setIsLoading(false);
+        setProfileData(response?.data?.profile);
+      })
+      .catch(error => {
+        setIsLoading(false);
+        setErr(true);
+        setErrMsg(
+          error?.response?.data?.error ||
+            'An unexpected error has occurred. Please try again later.',
+        );
+      });
+  }, []);
+
   return (
     <View style={styles.container}>
+      {isLoading && <ActivityIndicatorModal loaderIndicator={isLoading} />}
+      {err && (
+        <GeneralModal
+          modalError={true}
+          description={errMsg}
+          Set_Modal_Visibilty={setErr}
+        />
+      )}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.navigate('Home')}>
+          onPress={() => navigation.goBack()}>
           <Image
             source={require('../../../assets/icons/back-icon.png')}
             style={styles.backIcon}
@@ -195,102 +229,106 @@ const ProfileScreen = () => {
         </Text>
         <View style={styles.headerRight} />
       </View>
+      {profileData && (
+        <>
+          <View style={styles.contentContainer}>
+            <ScrollView
+              style={styles.scrollContainer}
+              contentContainerStyle={{
+                ...styles.scrollContentContainer,
+                paddingBottom: keyboardVisible ? 200 : 20,
+              }}
+              keyboardShouldPersistTaps="handled">
+              <View style={styles.profileSection}>
+                <View style={styles.profileImageContainer}>
+                  <Image
+                    source={userData.profileBorder}
+                    style={styles.profileBorder}
+                  />
+                  <TouchableOpacity
+                    style={styles.profileImageWrapper}
+                    onPress={isEditing ? openImagePicker : null}>
+                    <Image
+                      source={profileImage}
+                      style={styles.profileImage}
+                      resizeMode="cover"
+                    />
+                    {isEditing && (
+                      <View style={styles.cameraButtonContainer}>
+                        <TouchableOpacity
+                          style={styles.cameraButton}
+                          onPress={openImagePicker}>
+                          <Image
+                            source={require('../../../assets/icons/camera-icon.png')}
+                            style={styles.cameraIcon}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                </View>
 
-      <View style={styles.contentContainer}>
-        <ScrollView
-          style={styles.scrollContainer}
-          contentContainerStyle={{
-            ...styles.scrollContentContainer,
-            paddingBottom: keyboardVisible ? 200 : 20, // Increase bottom padding when keyboard is visible
-          }}
-          keyboardShouldPersistTaps="handled">
-          keyboardDismissMode="on-drag"
-          <View style={styles.profileSection}>
-            <View style={styles.profileImageContainer}>
-              <Image
-                source={userData.profileBorder}
-                style={styles.profileBorder}
-              />
-              <TouchableOpacity
-                style={styles.profileImageWrapper}
-                onPress={isEditing ? openImagePicker : null}>
-                <Image
-                  source={profileImage}
-                  style={styles.profileImage}
-                  resizeMode="cover"
-                />
-                {isEditing && (
-                  <View style={styles.cameraButtonContainer}>
-                    <TouchableOpacity
-                      style={styles.cameraButton}
-                      onPress={openImagePicker}>
-                      <Image
-                        source={require('../../../assets/icons/camera-icon.png')}
-                        style={styles.cameraIcon}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </TouchableOpacity>
-            </View>
+                <View style={styles.formContainer}>
+                  <Text style={styles.label}>Full Name</Text>
+                  {isEditing ? (
+                    <TextInput
+                      style={styles.input}
+                      value={name}
+                      onChangeText={setName}
+                      placeholder="Full Name"
+                    />
+                  ) : (
+                    <Text style={styles.info}>{name}</Text>
+                  )}
 
-            <View style={styles.formContainer}>
-              <Text style={styles.label}>Full Name</Text>
-              {isEditing ? (
-                <TextInput
-                  style={styles.input}
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Full Name"
-                />
-              ) : (
-                <Text style={styles.info}>{name}</Text>
-              )}
-
-              <Text style={styles.label}>Email Address</Text>
-              {isEditing ? (
-                <TextInput
-                  style={styles.input}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Email Address"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-              ) : (
-                <Text style={styles.info}>{email}</Text>
-              )}
-            </View>
+                  <Text style={styles.label}>Email Address</Text>
+                  {isEditing ? (
+                    <TextInput
+                      style={styles.input}
+                      value={email}
+                      onChangeText={setEmail}
+                      placeholder="Email Address"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                  ) : (
+                    <Text style={styles.info}>{email}</Text>
+                  )}
+                </View>
+              </View>
+            </ScrollView>
           </View>
-        </ScrollView>
-      </View>
 
-      <View
-        style={[
-          styles.footer,
-          keyboardVisible && Platform.OS === 'ios' && styles.footerWithKeyboard,
-        ]}>
-        {isEditing ? (
-          <>
-            <TouchableOpacity
-              style={styles.updateButton}
-              onPress={handleUpdate}>
-              <Text style={styles.footerButtonText}>Update</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.resetButton}
-              onPress={handleResetPassword}>
-              <Text style={styles.resetButtonText}>Reset Password</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => setIsEditing(true)}>
-            <Text style={styles.editButtonText}>Edit</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+          <View
+            style={[
+              styles.footer,
+              keyboardVisible &&
+                Platform.OS === 'ios' &&
+                styles.footerWithKeyboard,
+            ]}>
+            {isEditing ? (
+              <>
+                <TouchableOpacity
+                  style={styles.updateButton}
+                  onPress={handleUpdate}>
+                  <Text style={styles.footerButtonText}>Update</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.resetButton}
+                  onPress={handleResetPassword}>
+                  <Text style={styles.resetButtonText}>Reset Password</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => setIsEditing(true)}>
+                <Text style={styles.editButtonText}>Edit</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </>
+      )}
     </View>
   );
 };

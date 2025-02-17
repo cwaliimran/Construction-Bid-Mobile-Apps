@@ -9,14 +9,20 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from 'react-native';
-import {useAuth} from '../../route/AuthContext';
-import {useNavigation} from '@react-navigation/native';
 import {Swipeable} from 'react-native-gesture-handler';
 import styles from './styles';
+import {useDispatch} from 'react-redux';
+import {setUser} from '../../store/slices/user';
+import ActivityIndicatorModal from '../../components/modal/activity-indicator-modal';
+import GeneralModal from '../../components/modal/general-modal';
 
-const Home = () => {
-  const navigation = useNavigation();
-  const {logout, token} = useAuth(); // Use auth context
+const Home = ({navigation}) => {
+  // API data
+  const dispatch = useDispatch();
+  const [err, setErr] = useState(false);
+  const [errMsg, setErrMsg] = useState('');
+  const [isLogoutLoading, setIsLogoutLoading] = useState(false);
+
   const [showPopup, setShowPopup] = useState(false);
   const [bids, setBids] = useState([]);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
@@ -25,28 +31,28 @@ const Home = () => {
 
   const fetchBids = async () => {
     setRefreshing(true);
-    try {
-      const response = await fetch('http://192.168.18.234:5000/home/bids', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const json = await response.json();
-      if (json.message === 'Bids fetched successfully') {
-        setBids(
-          json.bids.map((bid, index) => ({
-            id: String(index + 1),
-            title: bid.address,
-            created: new Date(bid.createdAt).toLocaleDateString(),
-          })),
-        );
-      }
-    } catch (error) {
-      console.error('Failed to fetch bids', error);
-    } finally {
-      setRefreshing(false);
-    }
+    // try {
+    //   const response = await fetch('http://192.168.18.234:5000/home/bids', {
+    //     method: 'GET',
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   });
+    //   const json = await response.json();
+    //   if (json.message === 'Bids fetched successfully') {
+    //     setBids(
+    //       json.bids.map((bid, index) => ({
+    //         id: String(index + 1),
+    //         title: bid.address,
+    //         created: new Date(bid.createdAt).toLocaleDateString(),
+    //       })),
+    //     );
+    //   }
+    // } catch (error) {
+    //   console.error('Failed to fetch bids', error);
+    // } finally {
+    //   setRefreshing(false);
+    // }
   };
 
   useEffect(() => {
@@ -58,16 +64,23 @@ const Home = () => {
   };
 
   const handleLogout = () => {
-    logout(); // Use context's logout function
-    navigation.reset({
-      index: 0,
-      routes: [{name: 'SignIn'}],
-    });
+    setShowPopup(false);
+    setIsLogoutLoading(true);
+    setTimeout(() => {
+      setIsLogoutLoading(false);
+      dispatch(setUser(null));
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'SignIn'}],
+      });
+    }, 1000);
   };
 
   const handleProfilePress = () => {
     setShowPopup(false);
-    navigation.navigate('ProfileScreen');
+    setTimeout(() => {
+      navigation.navigate('ProfileScreen');
+    }, 400);
   };
 
   const handleDelete = id => {
@@ -205,6 +218,16 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
+      {isLogoutLoading && (
+        <ActivityIndicatorModal loaderIndicator={isLogoutLoading} />
+      )}
+      {err && (
+        <GeneralModal
+          modalError={true}
+          description={errMsg}
+          Set_Modal_Visibilty={setErr}
+        />
+      )}
       <View style={styles.header}>
         <Image
           source={require('../../../assets/icons/LOGO(Home).png')}

@@ -9,52 +9,75 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
-import {useAuth} from '../../../route/AuthContext';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
+import {useDispatch} from 'react-redux';
+import {loginUser} from '../../../store/slices/user';
+import ActivityIndicatorModal from '../../../components/modal/activity-indicator-modal';
+import GeneralModal from '../../../components/modal/general-modal';
 
 const SignInSchema = Yup.object().shape({
-  email: Yup.string().email('Invalid email').required('Email is required'),
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required')
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      'Email must have a valid domain (e.g., .com, .net, .org)',
+    ),
   password: Yup.string()
-    .min(6, 'Password too short!')
+    .min(8, 'Password must be at least 8 characters')
+    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .matches(/[0-9]/, 'Password must contain at least one number')
+    .matches(
+      /[@$!%*?&]/,
+      'Password must contain at least one special character (@$!%*?&)',
+    )
     .required('Password is required'),
 });
 
-const SignIn = () => {
-  const navigation = useNavigation();
-  const {login} = useAuth();
+const SignIn = ({navigation}) => {
+  // API data
+  const dispatch = useDispatch();
+  const [err, setErr] = useState(false);
+  const [errMsg, setErrMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  const [apiError, setApiError] = useState('');
 
   const handleSignIn = async values => {
-    try {
-      let response = await fetch('http://192.168.18.234:5000/users/signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-
-      let jsonResponse = await response.json();
-
-      if (response.ok) {
-        login(); // Use context to set login state
+    setIsLoading(true);
+    const payload = {
+      email: values.email,
+      password: values.password,
+    };
+    dispatch(loginUser(payload))
+      .then(response => {
+        setIsLoading(false);
         navigation.navigate('Home');
-      } else {
-        throw new Error(jsonResponse.error || 'Unable to login');
-      }
-    } catch (error) {
-      setApiError(error.message);
-      console.error('Login error:', error);
-    }
+      })
+      .catch(error => {
+        setIsLoading(false);
+        setErr(true);
+        setErrMsg(
+          error?.response?.data?.error ||
+            'An unexpected error has occurred. Please try again later.',
+        );
+      });
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      {isLoading && <ActivityIndicatorModal loaderIndicator={isLoading} />}
+      {err && (
+        <GeneralModal
+          modalError={true}
+          description={errMsg}
+          Set_Modal_Visibilty={setErr}
+        />
+      )}
       <ScrollView>
         <View style={styles.header}>
           <Image
@@ -62,11 +85,12 @@ const SignIn = () => {
             style={styles.logo}
           />
         </View>
-
-        <Text style={styles.signInTitle}>Sign In</Text>
-        <Text style={styles.signInSubtitle}>
-          For a personalized experience, login to your account
-        </Text>
+        <View style={{marginHorizontal: 20}}>
+          <Text style={styles.signInTitle}>Sign In</Text>
+          <Text style={styles.signInSubtitle}>
+            For a personalized experience, login to your account
+          </Text>
+        </View>
 
         <Formik
           initialValues={{email: '', password: ''}}
@@ -89,12 +113,15 @@ const SignIn = () => {
                     style={styles.inputIcon}
                   />
                   <TextInput
+                    allowFontScaling={false}
                     placeholder="Johndoe@gmail.com"
                     placeholderTextColor="#B0B0B0"
                     style={styles.input}
                     onChangeText={handleChange('email')}
                     onBlur={handleBlur('email')}
                     value={values.email}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
                   />
                 </View>
                 {touched.email && errors.email && (
@@ -138,11 +165,6 @@ const SignIn = () => {
                   <Text style={styles.errorText}>{errors.password}</Text>
                 )}
               </View>
-
-              {apiError ? (
-                <Text style={styles.errorText}>{apiError}</Text>
-              ) : null}
-
               <TouchableOpacity
                 style={styles.signInButtonContainer}
                 onPress={handleSubmit}>

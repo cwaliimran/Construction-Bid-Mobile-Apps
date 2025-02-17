@@ -5,7 +5,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
-    paddingHorizontal: 20,
   },
   header: {
     flexDirection: 'column', // Changed to 'column' to stack elements vertically
@@ -45,6 +44,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     color: 'FFFFFF',
     marginBottom: 20,
+    marginHorizontal: 20,
   },
   inputLabel: {
     fontSize: 15,
@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
   signInButtonContainer: {
     marginTop: 15,
     marginBottom: 20,
+    marginHorizontal: 20,
   },
   signInButton: {
     width: '100%',

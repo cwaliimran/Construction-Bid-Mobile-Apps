@@ -4,6 +4,8 @@ export const colors = {
   primary: ['#126702', '#B1B500'],
   white: '#FFFFFF',
   grey: 'grey',
+  black: '#000000',
+  errorRed: "#FF0000",
 };
 
 // Define common font sizes
@@ -23,7 +25,7 @@ export const fonts = {
   Light: 'Roboto-Light',
   Regular: 'Roboto-Regular',
   Medium: 'Roboto-Medium',
-  Bold: 'Roboto-Black',
+  Bold: 'Roboto-Bold',
   ExtraBold: 'Roboto-Extra-Bold',
   Black: 'Roboto-Black',
 };
@@ -39,7 +41,7 @@ export const commonStyles = StyleSheet.create({
   },
   btnText: {
     color: colors.white,
-    fontFamily: fonts.medium,
+    fontFamily: fonts.Medium,
     fontSize: fontSizes.xSmall,
   },
 });

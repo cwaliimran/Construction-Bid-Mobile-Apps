@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   },
   popupMenu: {
     position: 'absolute',
-    top: 80, // Adjusted to be below header
+    top: 80,
     right: 20,
     backgroundColor: 'white',
     borderRadius: 8,
