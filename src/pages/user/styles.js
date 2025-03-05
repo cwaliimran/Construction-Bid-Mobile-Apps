@@ -61,6 +61,8 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
+    justifyContent:'center',
+    alignItems:'center'
   },
   profileBorder: {
     position: 'absolute',
@@ -70,9 +72,10 @@ const styles = StyleSheet.create({
     left: 0,
   },
   profileImage: {
-    width: 90,
-    height: 90,
+    width: 70,
+    height: 70,
     borderRadius: 45,
+   
   },
   cameraButtonContainer: {
     position: 'absolute',

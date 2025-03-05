@@ -10,6 +10,7 @@ import {
   ScrollView,
   Image,
   Modal,
+  Pressable,
 } from 'react-native';
 import {data} from '../../../data/addbid/data';
 import {useNavigation} from '@react-navigation/native'; // Add this import
@@ -258,6 +259,7 @@ const AddBid = () => {
         <Picker
           selectedValue={propertyType}
           onValueChange={setPropertyType}
+          placeholder="hgj"
           style={styles.picker}>
           {PROPERTY_OPTIONS.map(option => (
             <Picker.Item
@@ -274,7 +276,9 @@ const AddBid = () => {
   const renderItemActions = item => {
     if (showItemActions === item.id) {
       return (
-        <View style={styles.menuWrapper}>
+        <Pressable
+          style={styles.menuWrapper}
+          onPress={() => setShowItemActions(false)}>
           <View style={styles.itemActionsMenu}>
             <TouchableOpacity
               style={styles.actionMenuItem}
@@ -308,7 +312,7 @@ const AddBid = () => {
               <Text style={styles.actionMenuText}>Delete Item</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Pressable>
       );
     }
     return null;
@@ -347,12 +351,19 @@ const AddBid = () => {
       </View>
     </Modal>
   );
+  const handleNumericInput = (stepNumber, id, field, value) => {
+    setItemsByStep(prevState => {
+      const newItems = prevState[stepNumber].map(item => {
+        if (item.id === id) {
+          return {...item, [field]: value};
+        }
+        return item;
+      });
 
-  const handleNumericInput = (step, id, field, text) => {
-    // Regex to allow only numeric input
-    const cleaned = text.replace(/[^0-9]/g, '');
-    updateField(step, id, field, cleaned);
+      return {...prevState, [stepNumber]: newItems};
+    });
   };
+
   const renderStepItems = () => {
     const currentItems = itemsByStep[step] || [];
     return (
@@ -397,31 +408,35 @@ const AddBid = () => {
             {renderItemActions(item)}
             <View style={styles.inputsContainer}>
               <TextInput
-                placeholder="Unit Cost"
-                style={styles.input}
-                value={item.unitCost}
+                style={styles.textinput}
+                placeholder="Unit cost"
                 placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
-                keyboardType="numeric"
+                value={item.unitCost ? String(item.unitCost) : ''}
                 onChangeText={text =>
                   handleNumericInput(step, item.id, 'unitCost', text)
                 }
-              />
-              <TextInput
-                placeholder="Quantity"
-                style={styles.input}
-                value={item.quantity}
-                placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
+                editable={true}
                 keyboardType="numeric"
+              />
+
+              <TextInput
+                style={styles.textinput}
+                placeholder="Quantity"
+                //value={item.quantity}
+                keyboardType="numeric"
+                value={item.quantity}
                 onChangeText={text =>
                   handleNumericInput(step, item.id, 'quantity', text)
                 }
               />
               <TextInput
+                style={styles.textinput}
                 placeholder="Total"
-                style={styles.input}
-                placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
                 value={item.total}
-                editable={false}
+                keyboardType="numeric"
+                onChangeText={text =>
+                  handleNumericInput(step, item.id, 'total', text)
+                }
               />
             </View>
           </View>

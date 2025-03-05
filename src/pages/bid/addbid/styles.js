@@ -177,19 +177,27 @@ const styles = StyleSheet.create({
   inputsContainer: {
     borderColor: '#C0C0C0', // Changed to a lighter grey color
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    left: 5,
+    justifyContent: 'flex-start',
+    gap: 15,
+    marginVertical: 10,
+    marginLeft:10
     // padding: 5,
   },
-  input: {
+  textinput: {
+    // borderWidth: 1,
+    // borderColor: '#000', // Changed from '#C0C0C0' to '#000' for black border
+    // borderRadius: 5,
+    // padding: 10,
+    // flex: 1,
+    // marginHorizontal: 5,
+    // numberOfLines: 1,
+    // ellipsizeMode: 'tail',
+    width: '25%',
+    // height: 34,
+    borderRadius: 10,
+    borderColor: '#0000001A',
     borderWidth: 1,
-    borderColor: '#000', // Changed from '#C0C0C0' to '#000' for black border
-    borderRadius: 5,
-    padding: 10,
-    flex: 1,
-    marginHorizontal: 5,
-    numberOfLines: 1,
-    ellipsizeMode: 'tail',
+    padding:8,
   },
   icon: {
     width: 24,
@@ -229,8 +237,8 @@ const styles = StyleSheet.create({
 
   itemActionsMenu: {
     position: 'absolute',
-    right: 10,
-    top: -10, // Moved up to appear above the item
+    right: 30,
+    top: 20, // Moved up to appear above the item
     backgroundColor: '#F1F8FF',
     borderRadius: 8,
     padding: 8,
