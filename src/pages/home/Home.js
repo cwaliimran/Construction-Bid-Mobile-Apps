@@ -8,13 +8,19 @@ import {
   FlatList,
   Modal,
   TouchableWithoutFeedback,
+  ScrollView,
 } from 'react-native';
 import {Swipeable} from 'react-native-gesture-handler';
 import styles from './styles';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {setUser} from '../../store/slices/user';
-import ActivityIndicatorModal from '../../components/modal/activity-indicator-modal';
 import GeneralModal from '../../components/modal/general-modal';
+import ActivityIndicatorModal from '../../components/modal/ActivityIndicatorModal';
+import {deleteBid, getBids} from '../../store/slices/bid';
+import ActivityIndicator from '../../components/modal/ActivityIndicator';
+import {commonStyles} from '../../utls/styles';
+import moment from 'moment';
+import Toast from 'react-native-toast-message';
 
 const Home = ({navigation}) => {
   // API data
@@ -23,44 +29,56 @@ const Home = ({navigation}) => {
   const [errMsg, setErrMsg] = useState('');
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
 
+  const {isLoading, isDeleteLoading, bids} = useSelector(state => state.bid);
+
   const [showPopup, setShowPopup] = useState(false);
-  const [bids, setBids] = useState([]);
+
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [selectedBidId, setSelectedBidId] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  // const fetchBids = async () => {
+  //   // setRefreshing(true);
+  //   // try {
+  //   //   const response = await fetch('http://192.168.18.234:5000/home/bids', {
+  //   //     method: 'GET',
+  //   //     headers: {
+  //   //       Authorization: `Bearer ${token}`,
+  //   //     },
+  //   //   });
+  //   //   const json = await response.json();
+  //   //   if (json.message === 'Bids fetched successfully') {
+  //   //     setBids(
+  //   //       json.bids.map((bid, index) => ({
+  //   //         id: String(index + 1),
+  //   //         title: bid.address,
+  //   //         created: new Date(bid.createdAt).toLocaleDateString(),
+  //   //       })),
+  //   //     );
+  //   //   }
+  //   // } catch (error) {
+  //   //   console.error('Failed to fetch bids', error);
+  //   // } finally {
+  //   //   setRefreshing(false);
+  //   // }
+  // };
+
   const fetchBids = async () => {
-    setRefreshing(true);
-    // try {
-    //   const response = await fetch('http://192.168.18.234:5000/home/bids', {
-    //     method: 'GET',
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //   });
-    //   const json = await response.json();
-    //   if (json.message === 'Bids fetched successfully') {
-    //     setBids(
-    //       json.bids.map((bid, index) => ({
-    //         id: String(index + 1),
-    //         title: bid.address,
-    //         created: new Date(bid.createdAt).toLocaleDateString(),
-    //       })),
-    //     );
-    //   }
-    // } catch (error) {
-    //   console.error('Failed to fetch bids', error);
-    // } finally {
-    //   setRefreshing(false);
-    // }
+    await dispatch(getBids());
   };
 
   useEffect(() => {
     fetchBids();
   }, []);
 
+  // const onRefresh = () => {
+  //   fetchBids();
+  // };
+
   const onRefresh = () => {
+    setRefreshing(true);
     fetchBids();
+    setRefreshing(false);
   };
 
   const handleLogout = () => {
@@ -83,9 +101,23 @@ const Home = ({navigation}) => {
     }, 400);
   };
 
-  const handleDelete = id => {
-    setBids(bids.filter(bid => bid.id !== id));
+  const handleDelete = async () => {
     setDeleteConfirmVisible(false);
+    await dispatch(deleteBid(selectedBidId))
+      .then(response => {
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: response?.data?.message,
+        });
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: error?.response?.data?.error || 'Something went wrong',
+        });
+      });
   };
 
   const PopupMenu = () => (
@@ -160,7 +192,7 @@ const Home = ({navigation}) => {
     </Modal>
   );
 
-  const renderBidItem = ({item}) => {
+  const renderBidItem = ({item, index}) => {
     const renderRightActions = () => (
       <TouchableOpacity
         style={styles.deleteButton}
@@ -191,7 +223,10 @@ const Home = ({navigation}) => {
             <View style={styles.greenBar}></View>
             <View style={styles.bidContent}>
               <View style={styles.numberWrapper}>
-                <Text style={styles.numberText}>{item.id}</Text>
+                <Text style={styles.numberText}>
+                  {' '}
+                  {String(index + 1).padStart(2, '0')}
+                </Text>
               </View>
               <View style={styles.iconWrapper}>
                 <Image
@@ -200,8 +235,10 @@ const Home = ({navigation}) => {
                 />
               </View>
               <View style={styles.textWrapper}>
-                <Text style={styles.bidTitle}>{item.title}</Text>
-                <Text style={styles.bidDate}>Created {item.created}</Text>
+                <Text style={styles.bidTitle}>{item.address}</Text>
+                <Text style={styles.bidDate}>
+                  Created {moment(item.createdAt).format('DD MMM YYYY')}
+                </Text>
               </View>
             </View>
             <TouchableOpacity style={styles.editButton}>
@@ -218,9 +255,7 @@ const Home = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      {isLogoutLoading && (
-        <ActivityIndicatorModal loaderIndicator={isLogoutLoading} />
-      )}
+      {(isLogoutLoading || isDeleteLoading) && <ActivityIndicatorModal />}
       {err && (
         <GeneralModal
           modalError={true}
@@ -255,15 +290,28 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={bids}
-        renderItem={renderBidItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.bidsList}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <FlatList
+          data={bids}
+          renderItem={renderBidItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.bidsList}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          ListFooterComponent={
+            !isLoading &&
+            bids?.length < 1 && (
+              <View style={{marginVertical: 20}} refre>
+                <Text style={commonStyles.noDataText}>No data found</Text>
+              </View>
+            )
+          }
+        />
+      )}
 
       <TouchableOpacity
         style={styles.addButton}

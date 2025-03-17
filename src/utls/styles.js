@@ -5,7 +5,10 @@ export const colors = {
   white: '#FFFFFF',
   grey: 'grey',
   black: '#000000',
-  errorRed: "#FF0000",
+  errorRed: '#FF0000',
+  blue: '#0060CE',
+  success: '#43E804',
+  error: '#FF9797',
 };
 
 // Define common font sizes
@@ -43,5 +46,11 @@ export const commonStyles = StyleSheet.create({
     color: colors.white,
     fontFamily: fonts.Medium,
     fontSize: fontSizes.xSmall,
+  },
+  noDataText: {
+    fontSize: fontSizes.xSmall,
+    fontFamily: fonts.Regular,
+    color: colors.blackPrimary,
+    textAlign: 'center',
   },
 });

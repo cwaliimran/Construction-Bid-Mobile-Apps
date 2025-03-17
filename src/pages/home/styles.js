@@ -3,9 +3,8 @@ import {fonts} from '../../utls/styles';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F6F6F6',
-    paddingHorizontal: 20,
-    paddingTop: 40,
+    backgroundColor: '#F8F8F8',
+    padding: 20,
   },
   header: {
     flexDirection: 'row',
@@ -54,7 +53,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   bidsList: {
-    marginBottom: 70,
+    paddingBottom: 100,
   },
   bidContainer: {
     flexDirection: 'row',
@@ -190,7 +189,7 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: '#000000',
-    fontSize: 16,
+    fontSize: 14,
   },
   deleteButton: {
     justifyContent: 'center',

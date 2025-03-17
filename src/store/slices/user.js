@@ -1,8 +1,9 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {API_ENDPOINTS} from '../../utls/network/axios';
-import {getRequest, postRequest} from '../../utls/network/request';
+import {getRequest, postRequest, putRequest} from '../../utls/network/request';
 
 const initialState = {
+  isLoading: false,
   user: null,
 };
 
@@ -10,6 +11,10 @@ const slice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    setIsLoading(state, action) {
+      state.isLoading = action.payload;
+    },
+
     setUserData(state, action) {
       state.user = action.payload;
     },
@@ -30,20 +35,56 @@ export const loginUser = payload => async dispatch => {
       endpoint: `${API_ENDPOINTS.Auth.login}`,
       payload: payload,
     });
-    dispatch(actions.setUserData(response?.data));
+    dispatch(actions.setUserData(response?.data?.profile));
     return response;
   } catch (error) {
     throw error;
   }
 };
 
-export const getCurrentUserProfile = userId => async dispatch => {
+export const getMyProfile = () => async dispatch => {
+  dispatch(actions.setIsLoading(true));
   try {
     const response = await getRequest({
-      endpoint: `${API_ENDPOINTS.Auth.getUserProfile}${userId}`,
+      endpoint: `${API_ENDPOINTS.Auth.getMyProfile}`,
     });
+    dispatch(actions.setUserData(response?.data?.profile));
+    dispatch(actions.setIsLoading(false));
     return response;
   } catch (error) {
+    dispatch(actions.setIsLoading(false));
+    throw error;
+  }
+};
+
+export const updateProfile = payload => async dispatch => {
+  dispatch(actions.setIsLoading(true));
+  try {
+    const response = await putRequest({
+      endpoint: `${API_ENDPOINTS.Auth.updateProfile}`,
+      payload: payload,
+    });
+    dispatch(actions.setUserData(response?.data?.profile));
+    dispatch(actions.setIsLoading(false));
+    return response;
+  } catch (error) {
+    
+    dispatch(actions.setIsLoading(false));
+    throw error;
+  }
+};
+
+export const changePassword = payload => async dispatch => {
+  dispatch(actions.setIsLoading(true));
+  try {
+    const response = await putRequest({
+      endpoint: `${API_ENDPOINTS.Auth.changePassword}`,
+      payload: payload,
+    });
+    dispatch(actions.setIsLoading(false));
+    return response;
+  } catch (error) {
+    dispatch(actions.setIsLoading(false));
     throw error;
   }
 };

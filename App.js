@@ -1,12 +1,23 @@
 import React, {useEffect, useState} from 'react';
-import {StatusBar, StyleSheet, View, LogBox, Appearance} from 'react-native';
-import SplashScreen from './src/pages/splash/SplashScreen';
-import Route from './src/route/Route';
+import {
+  StatusBar,
+  StyleSheet,
+  View,
+  LogBox,
+  Appearance,
+  Platform,
+} from 'react-native';
+
+// Third Party
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {userConstants} from './src/constants/user';
 import {useDispatch} from 'react-redux';
-import {setUser} from './src/store/slices/user';
+import Toast from 'react-native-toast-message';
+
+// Import Components
+import SplashScreen from './src/pages/splash/SplashScreen';
+import Route from './src/route/Route';
+import {userConstants} from './src/constants/user';
 
 const App = () => {
   const [loader, setLoader] = useState(false);
@@ -42,6 +53,7 @@ const App = () => {
     <View style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       {!loader ? <SplashScreen /> : <Route />}
+      <Toast topOffset={Platform.OS === 'ios' ? 60 : 20} />
     </View>
   );
 };

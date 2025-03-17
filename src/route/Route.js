@@ -12,6 +12,7 @@ import EditItem from '../pages/item/edititem/EditItem';
 import ProfileScreen from '../pages/user/ProfileScreen';
 import ResetPassword from '../pages/auth/resetpassword/ResetPassword';
 import {useSelector} from 'react-redux';
+import UpdateProfile from '../pages/user/UpdateProfile';
 
 const Stack = createStackNavigator();
 
@@ -25,56 +26,17 @@ const Route = () => {
           headerShown: false,
         }}
         initialRouteName={!user ? 'SignIn' : 'Home'}>
-        <Stack.Screen
-          name="SignIn"
-          component={SignIn}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Home"
-          component={Home}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="AddBid"
-          component={AddBid}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="SubmitBid"
-          component={SubmitBid}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="UpdateBid"
-          component={UpdateBid}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="ProfileScreen"
-          component={ProfileScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="ResetPassword"
-          component={ResetPassword}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="AddItem"
-          component={AddItem}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="ViewBid"
-          component={ViewBid}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="EditItem"
-          component={EditItem}
-          options={{headerShown: false}}
-        />
+        <Stack.Screen name="SignIn" component={SignIn} />
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="AddBid" component={AddBid} />
+        <Stack.Screen name="SubmitBid" component={SubmitBid} />
+        <Stack.Screen name="UpdateBid" component={UpdateBid} />
+        <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+        <Stack.Screen name="UpdateProfile" component={UpdateProfile} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} />
+        <Stack.Screen name="AddItem" component={AddItem} />
+        <Stack.Screen name="ViewBid" component={ViewBid} />
+        <Stack.Screen name="EditItem" component={EditItem} />
       </Stack.Navigator>
     </NavigationContainer>
   );

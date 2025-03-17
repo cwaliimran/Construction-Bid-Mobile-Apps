@@ -33,7 +33,7 @@ axios.interceptors.request.use(
 // Add a response interceptor
 axios.interceptors.response.use(
   async function (response) {
-    const token = response?.data?.data?.token;
+    const token = response?.data?.token;
     if (token) {
       await AsyncStorage.setItem(userConstants.tokenVariable, token);
     }
@@ -70,7 +70,9 @@ export default axios;
 export const API_ENDPOINTS = {
   Auth: {
     login: 'users/signin',
-    getUserProfile: 'users/profile?userId=',
+    getMyProfile: 'users/profile',
+    changePassword: 'users/password/change',
+    updateProfile: 'users/profile/edit',
 
     // verifyOtp: 'auth/verifyOtp',
     // resendPin: 'auth/resendOtp',
@@ -83,5 +85,16 @@ export const API_ENDPOINTS = {
     // updateUserProfile: 'user/profile',
     // resumeAccount: 'auth/resumeAccount',
     // getOtherUserProfile: 'user/',
+  },
+  bid: {
+    getBids: 'home/bids',
+    deleteBid: 'bids/delete',
+    getBidPropertyType: 'sectionInfo/fetch',
+    getBidPlumbingItem: "sectionInfo/fetchPlumbing",
+    getBidHVACItem: "sectionInfo/fetchHVAC",
+    getBidElectricItem: "sectionInfo/fetchElectric",
+    getBidGeneralItem: 'sectionInfo/fetchGeneral',
+    getBidMiscWorkItem: 'sectionInfo/fetchMiscellaneousWork',
+    addBid: 'bids/add'
   },
 };

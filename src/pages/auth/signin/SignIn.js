@@ -16,8 +16,8 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import {useDispatch} from 'react-redux';
 import {loginUser} from '../../../store/slices/user';
-import ActivityIndicatorModal from '../../../components/modal/activity-indicator-modal';
 import GeneralModal from '../../../components/modal/general-modal';
+import ActivityIndicatorModal from '../../../components/modal/ActivityIndicatorModal';
 
 const SignInSchema = Yup.object().shape({
   email: Yup.string()
@@ -28,14 +28,14 @@ const SignInSchema = Yup.object().shape({
       'Email must have a valid domain (e.g., .com, .net, .org)',
     ),
   password: Yup.string()
-    .min(8, 'Password must be at least 8 characters')
-    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .matches(/[0-9]/, 'Password must contain at least one number')
-    .matches(
-      /[@$!%*?&]/,
-      'Password must contain at least one special character (@$!%*?&)',
-    )
+    .min(6, 'Password must be at least 6 characters')
+    // .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    // .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+    // .matches(/[0-9]/, 'Password must contain at least one number')
+    // .matches(
+    //   /[@$!%*?&]/,
+    //   'Password must contain at least one special character (@$!%*?&)',
+    // )
     .required('Password is required'),
 });
 
@@ -59,18 +59,17 @@ const SignIn = ({navigation}) => {
         navigation.navigate('Home');
       })
       .catch(error => {
+        console.log('err ------->', error);
+        console.log('err res ------->', error?.response?.data);
         setIsLoading(false);
         setErr(true);
-        setErrMsg(
-          error?.response?.data?.error ||
-            'An unexpected error has occurred. Please try again later.',
-        );
+        setErrMsg(error?.response?.data?.error || 'Something went wrong');
       });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {isLoading && <ActivityIndicatorModal loaderIndicator={isLoading} />}
+      {isLoading && <ActivityIndicatorModal />}
       {err && (
         <GeneralModal
           modalError={true}
@@ -114,7 +113,7 @@ const SignIn = ({navigation}) => {
                   />
                   <TextInput
                     allowFontScaling={false}
-                    placeholder="Johndoe@gmail.com"
+                    placeholder="Enter your email"
                     placeholderTextColor="#B0B0B0"
                     style={styles.input}
                     onChangeText={handleChange('email')}
@@ -138,7 +137,7 @@ const SignIn = ({navigation}) => {
                   />
 
                   <TextInput
-                    placeholder="*******"
+                    placeholder="Enter your password"
                     placeholderTextColor="#B0B0B0"
                     style={styles.input}
                     secureTextEntry={!confirmPasswordVisible}

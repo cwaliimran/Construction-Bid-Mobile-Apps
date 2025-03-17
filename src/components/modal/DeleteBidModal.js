@@ -15,8 +15,6 @@ const DeleteBidModal = () => {
   const {bidId} = route.params; // Get the bidId passed from the Home screen
 
   const handleDelete = () => {
-    // Perform deletion logic, e.g., remove the bid from state or database
-    console.log(`Deleting bid with ID: ${bidId}`);
     // After deletion, navigate back to Home screen
     navigation.goBack();
   };

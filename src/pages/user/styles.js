@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
   },
   profileSection: {
     alignItems: 'center',
-    paddingHorizontal: 16,
     paddingTop: 32,
   },
   profileImageContainer: {
@@ -61,8 +60,8 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    justifyContent:'center',
-    alignItems:'center'
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   profileBorder: {
     position: 'absolute',
@@ -74,29 +73,28 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 70,
     height: 70,
-    borderRadius: 45,
-   
+    borderRadius: 100,
+    backgroundColor: 'lightgrey',
   },
   cameraButtonContainer: {
     position: 'absolute',
-    right: -10,
-    bottom: -10,
+    right: 0,
+    bottom: 0,
     zIndex: 1,
   },
   cameraButton: {
-    backgroundColor: '#007AFF',
+    // backgroundColor: '#007AFF',
     borderRadius: 15,
-    width: 30,
-    height: 30,
+    width: 28,
+    height: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#FFF',
   },
   cameraIcon: {
-    width: 16,
-    height: 16,
-    tintColor: '#FFF',
+    width: 28,
+    height: 28,
   },
   formContainer: {
     width: '100%',

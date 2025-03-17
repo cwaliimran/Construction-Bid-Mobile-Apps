@@ -1,5 +1,5 @@
 // AddBid.js
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -18,15 +18,19 @@ import {Picker} from '@react-native-picker/picker';
 import styles from './styles';
 import {INITIAL_ITEMS} from '../../../data/addbid/INITIAL_ITEMS';
 import {useColorScheme} from 'react-native';
+import BidInformation from '../../../components/addbid/BidInformation';
+import BidItemStepPlumbing from '../../../components/addbid/BidItemStepPlumbing';
+import BidItemStepHVAC from '../../../components/addbid/BidItemStepHVAC';
+import BidItemStepElectric from '../../../components/addbid/BidItemStepElectric';
+import BidItemStepGeneral from '../../../components/addbid/BidItemStepGeneral';
+import BidItemStepMiscWork from '../../../components/addbid/BidItemStepMiscWork';
+import {useDispatch, useSelector} from 'react-redux';
+import ActivityIndicatorModal from '../../../components/modal/ActivityIndicatorModal';
+import Toast from 'react-native-toast-message';
+import {addBid} from '../../../store/slices/bid';
 // import RenderCostSummary from '../../../components/addbid/RenderCostSummary';
 // Constants
 
-const PROPERTY_OPTIONS = [
-  {label: 'Choose your property type', value: ''},
-  {label: 'Single Bedroom', value: 'single_bedroom'},
-  {label: 'Commercial', value: 'commercial'},
-  {label: 'Office', value: 'office'},
-];
 const InitialData = INITIAL_ITEMS;
 
 const STEP_DETAILS = {
@@ -38,490 +42,175 @@ const STEP_DETAILS = {
 };
 
 const AddBid = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const dispatch = useDispatch();
   // State Management
+  const {isLoading, isAddBidLoading} = useSelector(state => state.bid);
   const navigation = useNavigation(); // Add this line4
-  const goToHomePage = () => navigation.navigate('Home');
   const [step, setStep] = useState(1);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [propertyType, setPropertyType] = useState('');
-  const [markupPercentage, setMarkupPercentage] = useState('');
-  const [itemsByStep, setItemsByStep] = useState(InitialData);
-  const [showItemActions, setShowItemActions] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalType, setModalType] = useState('');
-  const [modalValue, setModalValue] = useState('');
-  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [address, setAddress] = useState('');
+  const [area, setArea] = useState('');
+
+  const [addBidData, setAddBidData] = useState(null);
+  console.log('addBidData ---------->', addBidData);
+
+  const [totalProjectCost, setTotalProjectCost] = useState(0);
+  const [markupPercentage, setMarkupPercentage] = useState(0);
+  const [finalCost, setFinalCost] = useState(0);
+
+  useEffect(() => {
+    if (!addBidData) return; // Ensure addBidData is not null or undefined
+
+    let totalCost = 0;
+
+    Object.values(addBidData).forEach(items => {
+      if (Array.isArray(items)) {
+        totalCost += items.reduce(
+          (sum, item) => sum + (item.totalCost || 0),
+          0,
+        );
+      }
+    });
+
+    setTotalProjectCost(totalCost);
+  }, [addBidData]);
+
+  useEffect(() => {
+    setFinalCost(
+      totalProjectCost + (totalProjectCost * markupPercentage) / 100,
+    );
+  }, [markupPercentage, totalProjectCost]);
+
+  const handleData = newData => {
+    setAddBidData(prevData => ({
+      ...prevData,
+      ...newData,
+    }));
+  };
 
   const handleSubmit = () => {
-    // You can pass the bid data to the SubmitBid screen
-    const bidData = {
-      propertyType,
-      itemsByStep,
-      totalProjectCost,
-      markupPercentage,
-      finalCost,
+    // navigation.navigate('SubmitBid', {bidData});
+
+    const data = {
+      sections: addBidData,
+      markupPercentage: markupPercentage,
     };
-
-    navigation.navigate('SubmitBid', {bidData});
-  };
-  // Calculations
-  const totalProjectCost = Object.values(itemsByStep).reduce(
-    (acc, stepItems) => {
-      return (
-        acc +
-        stepItems.reduce((stepAcc, item) => {
-          const itemTotal = parseFloat(item.total) || 0;
-          return stepAcc + itemTotal;
-        }, 0)
-      );
-    },
-    0,
-  );
-  const renderDeleteConfirmationModal = () => (
-    <Modal
-      visible={isDeleteModalVisible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={() => setIsDeleteModalVisible(false)}>
-      <View style={styles.modalOverlay}>
-        <TouchableOpacity
-          style={{
-            width: '100%',
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          activeOpacity={1}
-          onPress={() => setIsDeleteModalVisible(false)}>
-          <View style={styles.deleteModalContent}>
-            <Image
-              source={require('../../../../assets/icons/deletemodal.png')}
-              style={styles.deleteModalIcon}
-            />
-            <Text style={styles.deleteModalTitle}>Confirmation</Text>
-            <Text style={styles.deleteModalText}>
-              Are you sure you want to delete this item?
-            </Text>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => {
-                const newItems = itemsByStep[step].filter(
-                  i => i.id !== selectedItemId,
-                );
-                setItemsByStep({
-                  ...itemsByStep,
-                  [step]: newItems,
-                });
-                setIsDeleteModalVisible(false);
-                setShowItemActions(null);
-                setSelectedItemId(null);
-              }}>
-              <Text style={styles.deleteButtonText}>Delete Item</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setIsDeleteModalVisible(false)}
-              style={styles.cancelButton}>
-              <Text style={styles.cancelButtonText}>Not Yet</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </View>
-    </Modal>
-  );
-
-  const calculateFinalCost = totalCost => {
-    const markup = parseFloat(markupPercentage) || 0;
-    return totalCost + (totalCost * markup) / 100;
-  };
-
-  const finalCost = calculateFinalCost(totalProjectCost);
-
-  // Event Handlers
-  const updateField = (stepNumber, id, field, value) => {
-    const newItems = itemsByStep[stepNumber].map(item => {
-      if (item.id === id) {
-        const updatedItem = {...item, [field]: value};
-        if (field === 'unitCost' || field === 'quantity') {
-          const cost =
-            parseFloat(field === 'unitCost' ? value : item.unitCost) || 0;
-          const qty =
-            parseFloat(field === 'quantity' ? value : item.quantity) || 0;
-          updatedItem.total = (cost * qty).toFixed(2);
-        }
-        return updatedItem;
-      }
-      return item;
-    });
-
-    setItemsByStep({
-      ...itemsByStep,
-      [stepNumber]: newItems,
-    });
-  };
-  const handleModalSubmit = () => {
-    const newItems = itemsByStep[step].map(item => {
-      if (item.id === selectedItemId) {
-        return {
-          ...item,
-          [modalType.toLowerCase()]: modalValue,
-        };
-      }
-      return item;
-    });
-
-    setItemsByStep({
-      ...itemsByStep,
-      [step]: newItems,
-    });
-
-    setIsModalVisible(false);
-    setModalValue('');
-    setSelectedItemId(null);
-  };
-  const openModal = (type, itemId) => {
-    setModalType(type);
-    setSelectedItemId(itemId);
-    setIsModalVisible(true);
-    setShowItemActions(null);
-  };
-
-  const toggleCheck = (stepNumber, id) => {
-    const newItems = itemsByStep[stepNumber].map(item => {
-      if (item.id === id) {
-        return {...item, checked: !item.checked};
-      }
-      return item;
-    });
-    setItemsByStep({
-      ...itemsByStep,
-      [stepNumber]: newItems,
-    });
-  };
-
-  const toggleItemActions = id => {
-    if (showItemActions === id) {
-      setShowItemActions(null); // This will hide the actions and remove the overlay if clicked again on the same item
-    } else {
-      setShowItemActions(id); // This will show the actions for the clicked item without triggering the overlay
-    }
-  };
-  const addItem = () => {
-    const currentItems = itemsByStep[step] || [];
-    const newId = Math.max(...currentItems.map(item => item.id), 0) + 1;
-    const newItem = {
-      id: newId,
-      name: `New Item ${newId}`,
-      unitCost: '',
-      quantity: '',
-      total: '',
-      checked: false,
-    };
-
-    // Correctly updating the itemsByStep object
-    const updatedItemsByStep = {
-      ...itemsByStep,
-      [step]: [...currentItems, newItem],
-    };
-  };
-
-  // UI Components
-  const renderBidInformation = () => (
-    <>
-      <Text style={styles.sectionTitle}>Bid Information</Text>
-      <Text style={styles.heading}>Address</Text>
-      <View style={styles.inputContainer}>
-        <Image
-          source={require('../../../../assets/icons/location.png')}
-          style={styles.icon}
-        />
-        <TextInput
-          placeholder="Enter your address"
-          style={styles.input}
-          placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'} // Adjust color for dark mode
-        />
-      </View>
-      <Text style={styles.heading}>Area SQ.FT</Text>
-      <View style={styles.inputContainer}>
-        <Image
-          source={require('../../../../assets/icons/location.png')}
-          style={styles.icon}
-        />
-        <TextInput
-          placeholder="Enter Area (sq.ft)"
-          style={styles.input}
-          placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
-          keyboardType="numeric"
-        />
-      </View>
-      <Text style={styles.heading}>Property Type</Text>
-      <View style={styles.inputContainer}>
-        <Picker
-          selectedValue={propertyType}
-          onValueChange={setPropertyType}
-          placeholder="hgj"
-          style={styles.picker}>
-          {PROPERTY_OPTIONS.map(option => (
-            <Picker.Item
-              key={option.value}
-              label={option.label}
-              value={option.value}
-            />
-          ))}
-        </Picker>
-      </View>
-    </>
-  );
-
-  const renderItemActions = item => {
-    if (showItemActions === item.id) {
-      return (
-        <Pressable
-          style={styles.menuWrapper}
-          onPress={() => setShowItemActions(false)}>
-          <View style={styles.itemActionsMenu}>
-            <TouchableOpacity
-              style={styles.actionMenuItem}
-              onPress={() => openModal('HD SKU', item.id)}>
-              <Image
-                source={require('../../../../assets/icons/add-icon-popup.png')}
-                style={styles.actionMenuIcon}
-              />
-              <Text style={styles.actionMenuText}>HD SKU</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionMenuItem}
-              onPress={() => openModal('Brand', item.id)}>
-              <Image
-                source={require('../../../../assets/icons/add-icon-popup.png')}
-                style={styles.actionMenuIcon}
-              />
-              <Text style={styles.actionMenuText}>Brand</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionMenuItem, styles.lastMenuItem]}
-              onPress={() => {
-                setSelectedItemId(item.id);
-                setIsDeleteModalVisible(true);
-                setShowItemActions(null);
-              }}>
-              <Image
-                source={require('../../../../assets/icons/delete-icon-popup.png')}
-                style={styles.actionMenuIcon}
-              />
-              <Text style={styles.actionMenuText}>Delete Item</Text>
-            </TouchableOpacity>
-          </View>
-        </Pressable>
-      );
-    }
-    return null;
-  };
-  const renderModal = () => (
-    <Modal
-      visible={isModalVisible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={() => setIsModalVisible(false)}>
-      <View style={styles.modalOverlay}>
-        <TouchableOpacity
-          style={{
-            width: '100%',
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          activeOpacity={1}
-          onPress={() => setIsModalVisible(false)}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{modalType}</Text>
-            <TextInput
-              style={styles.modalInput}
-              placeholder={`Enter ${modalType}`}
-              value={modalValue}
-              onChangeText={setModalValue}
-            />
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={handleModalSubmit}>
-              <Text style={styles.modalButtonText}>Add</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </View>
-    </Modal>
-  );
-  const handleNumericInput = (stepNumber, id, field, value) => {
-    setItemsByStep(prevState => {
-      const newItems = prevState[stepNumber].map(item => {
-        if (item.id === id) {
-          return {...item, [field]: value};
-        }
-        return item;
+    dispatch(addBid(data))
+      .then(response => {
+        navigation.navigate('SubmitBid', {bidData});
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: response?.data?.message || 'Bid added successfully',
+        });
+      })
+      .catch(error => {
+        console.log('error -------->', error);
+        console.log('error -------->', error?.response?.data);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: error?.response?.data?.error || 'Something went wrong',
+        });
       });
-
-      return {...prevState, [stepNumber]: newItems};
-    });
-  };
-
-  const renderStepItems = () => {
-    const currentItems = itemsByStep[step] || [];
-    return (
-      <>
-        <Text style={styles.sectionTitle}>{STEP_DETAILS[step]?.title}</Text>
-        {currentItems.map(item => (
-          <View key={item.id} style={styles.itemContainer}>
-            <View style={styles.leftIndicator}></View>
-            <View style={styles.itemDetails}>
-              <View>
-                <Text style={styles.itemName}>{item.name}</Text>
-                {(item.hdSku || item.brand) && (
-                  <Text style={styles.itemSubtext}>
-                    {item.hdSku && `HD SKU: ${item.hdSku}`}{' '}
-                    {item.brand && `Brand: ${item.brand}`}
-                  </Text>
-                )}
-              </View>
-              <View style={styles.actions}>
-                <TouchableOpacity
-                  onPress={() => toggleCheck(step, item.id)}
-                  style={styles.actionButton}>
-                  <Image
-                    source={
-                      item.checked
-                        ? require('../../../../assets/icons/check.png')
-                        : require('../../../../assets/icons/uncheck.png')
-                    }
-                    style={styles.icon}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => toggleItemActions(item.id)}
-                  style={styles.actionButton}>
-                  <Image
-                    source={require('../../../../assets/icons/more.png')}
-                    style={styles.icon}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-            {renderItemActions(item)}
-            <View style={styles.inputsContainer}>
-              <TextInput
-                style={styles.textinput}
-                placeholder="Unit cost"
-                placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
-                value={item.unitCost ? String(item.unitCost) : ''}
-                onChangeText={text =>
-                  handleNumericInput(step, item.id, 'unitCost', text)
-                }
-                editable={true}
-                keyboardType="numeric"
-              />
-
-              <TextInput
-                style={styles.textinput}
-                placeholder="Quantity"
-                //value={item.quantity}
-                keyboardType="numeric"
-                value={item.quantity}
-                onChangeText={text =>
-                  handleNumericInput(step, item.id, 'quantity', text)
-                }
-              />
-              <TextInput
-                style={styles.textinput}
-                placeholder="Total"
-                value={item.total}
-                keyboardType="numeric"
-                onChangeText={text =>
-                  handleNumericInput(step, item.id, 'total', text)
-                }
-              />
-            </View>
-          </View>
-        ))}
-        <TouchableOpacity
-          onPress={() => navigation.navigate('AddItem')}
-          style={styles.addItemButton}>
-          <View style={styles.leftIndicatorBlue}></View>
-          <Image
-            source={require('../../../../assets/icons/upload.png')}
-            style={styles.uploadIcon}
-          />
-          <Text style={styles.addItemText}>Add Item</Text>
-        </TouchableOpacity>
-        {/* <RenderCostSummary /> */}
-        {/* {() => {
-          <RenderCostSummary />;
-        }} */}
-        {renderCostSummary()}
-      </>
-    );
-  };
-
-  const renderCostSummary = () => (
-    <View style={styles.costContainer}>
-      <View style={styles.leftIndicatorBlue}></View>
-      <View style={styles.costRow}>
-        <Text style={styles.costLabel}>Total Project Cost</Text>
-        <Text style={styles.costValue}>$ {totalProjectCost.toFixed(2)}</Text>
-      </View>
-      <View style={styles.costRow}>
-        <Text style={styles.costLabel}>Markup Percentage</Text>
-        <TextInput
-          style={styles.inputPercentage}
-          value={markupPercentage}
-          onChangeText={setMarkupPercentage}
-          keyboardType="numeric"
-          placeholderTextColor={isDarkMode ? '#CCCCCC' : '#666'}
-          placeholder="8.1 %"
-        />
-      </View>
-      <View style={styles.costRow}>
-        <Text style={styles.finalCostLabel}>Final Cost</Text>
-        <Text style={styles.finalCostValue}>$ {finalCost.toFixed(2)}</Text>
-      </View>
-    </View>
-  );
-
-  const renderStepContent = () => {
-    if (step === 1) {
-      return renderBidInformation();
-    }
-    return renderStepItems();
   };
 
   // Main Render
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={goToHomePage} style={styles.backButton}>
-            <Image
-              source={require('../../../../assets/icons/back-icon.png')} // Make sure you have an icon for back
-              style={styles.backIcon}
-            />
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.headerTitle}>Create Bid</Text>
+      {isAddBidLoading && <ActivityIndicatorModal />}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => {
+            setAddBidData(null);
+            navigation.navigate('Home');
+          }}
+          style={styles.backButton}>
+          <Image
+            source={require('../../../../assets/icons/back-icon.png')} // Make sure you have an icon for back
+            style={styles.backIcon}
+          />
+        </TouchableOpacity>
+        <View style={styles.titleContainer}>
+          <Text style={styles.headerTitle}>Create Bid</Text>
+        </View>
+        <View style={styles.placeholder}></View>
+      </View>
+
+      <View style={styles.stepIndicator}>
+        {[1, 2, 3, 4, 5, 6].map(item => (
+          <View
+            key={item}
+            style={[styles.stepCircle, step >= item && styles.activeStep]}>
+            <Text style={styles.stepText}>{item}</Text>
           </View>
-          <View style={styles.placeholder}></View>
-        </View>
-
-        <View style={styles.stepIndicator}>
-          {[1, 2, 3, 4, 5, 6].map(item => (
-            <View
-              key={item}
-              style={[styles.stepCircle, step >= item && styles.activeStep]}>
-              <Text style={styles.stepText}>{item}</Text>
-            </View>
-          ))}
-        </View>
-
-        {renderStepContent()}
+        ))}
+      </View>
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* {renderStepContent()} */}
+        {step === 1 ? (
+          <BidInformation
+            selectedProperty={selectedProperty}
+            setSelectedProperty={setSelectedProperty}
+            address={address}
+            setAddress={setAddress}
+            area={area}
+            setArea={setArea}
+            handleData={handleData}
+          />
+        ) : step === 2 ? (
+          <BidItemStepPlumbing handleData={handleData} />
+        ) : step === 3 ? (
+          <BidItemStepHVAC handleData={handleData} />
+        ) : step === 4 ? (
+          <BidItemStepElectric handleData={handleData} />
+        ) : step === 5 ? (
+          <BidItemStepGeneral handleData={handleData} />
+        ) : (
+          step === 6 && <BidItemStepMiscWork handleData={handleData} />
+        )}
       </ScrollView>
 
+      {step !== 1 && (
+        <View style={{marginHorizontal: 10}}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AddItem')}
+            style={styles.addItemButton}>
+            <View style={styles.leftIndicatorBlue}></View>
+            <Image
+              source={require('../../../../assets/icons/upload.png')}
+              style={styles.uploadIcon}
+            />
+            <Text style={styles.addItemText}>Add Item</Text>
+          </TouchableOpacity>
+          <View style={styles.costContainer}>
+            <View style={styles.leftIndicatorBlue}></View>
+            <View style={styles.costRow}>
+              <Text style={styles.costLabel}>Total Project Cost</Text>
+              <Text style={styles.costValue}>
+                $ {totalProjectCost?.toFixed(2)}
+              </Text>
+            </View>
+            <View style={styles.costRow}>
+              <Text style={styles.costLabel}>Markup Percentage</Text>
+              <TextInput
+                style={styles.inputPercentage}
+                value={markupPercentage}
+                onChangeText={text => setMarkupPercentage(Number(text))}
+                keyboardType="numeric"
+                placeholderTextColor="#CCCCCC"
+                placeholder="8.1 %"
+              />
+            </View>
+            <View style={styles.costRow}>
+              <Text style={styles.finalCostLabel}>Final Cost</Text>
+              <Text style={styles.finalCostValue}>
+                $ {finalCost.toFixed(2)}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
@@ -536,15 +225,27 @@ const AddBid = () => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
-          onPress={step === 6 ? handleSubmit : () => setStep(step + 1)}>
+          style={[isLoading ? styles.disabledButton : styles?.button]}
+          onPress={
+            step === 6
+              ? handleSubmit
+              : () =>
+                  step === 1 && (!area || !address || !selectedProperty)
+                    ? Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: 'Please fill all field first',
+                      })
+                    : setStep(step + 1)
+          }
+          disabled={isLoading}>
           <Text style={styles.buttonText}>
             {step === 6 ? 'Submit' : 'Next'}
           </Text>
         </TouchableOpacity>
       </View>
-      {renderModal()}
-      {renderDeleteConfirmationModal()}
+      {/* {renderModal()} */}
+      {/* {renderDeleteConfirmationModal()} */}
     </SafeAreaView>
   );
 };

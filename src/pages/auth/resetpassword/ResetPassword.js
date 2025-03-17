@@ -14,6 +14,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 import styles from './styles';
+import {useDispatch, useSelector} from 'react-redux';
+import {changePassword} from '../../../store/slices/user';
+import Toast from 'react-native-toast-message';
+import ActivityIndicatorModal from '../../../components/modal/ActivityIndicatorModal';
 
 const validationSchema = Yup.object().shape({
   newPassword: Yup.string()
@@ -26,20 +30,36 @@ const validationSchema = Yup.object().shape({
 
 const ResetPassword = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const {isLoading} = useSelector(state => state.auth);
   const [showPopup, setShowPopup] = useState(false);
   const [newPasswordVisible, setNewPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
-  const handleReset = values => {
-    setShowPopup(true);
+  const handleReset = async values => {
+    const data = {
+      newPassword: values.newPassword,
+    };
+    await dispatch(changePassword(data))
+      .then(response => {
+        setShowPopup(true);
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: error?.response?.data?.error || 'Something went wrong',
+        });
+      });
   };
 
   const handleLogin = () => {
     setShowPopup(false);
-    navigation.navigate('Home'); // Changed from 'VerifyOTP' to 'Home'
+    navigation.navigate('Home');
   };
   return (
     <View style={styles.container}>
+      {isLoading && <ActivityIndicatorModal />}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -90,7 +110,7 @@ const ResetPassword = () => {
                   style={styles.eyeIcon}>
                   <Image
                     source={
-                      confirmPasswordVisible
+                      newPasswordVisible
                         ? require('../../../../assets/icons/eye-open.png') // Image for showing password
                         : require('../../../../assets/icons/eye-closed.png') // Image for hiding password
                     }
