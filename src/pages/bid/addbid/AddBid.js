@@ -1,5 +1,5 @@
 // AddBid.js
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,12 @@ import {
   Image,
   Modal,
   Pressable,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {data} from '../../../data/addbid/data';
-import {useNavigation} from '@react-navigation/native'; // Add this import
+import {useFocusEffect, useNavigation} from '@react-navigation/native'; // Add this import
 import {Picker} from '@react-native-picker/picker';
 import styles from './styles';
 import {INITIAL_ITEMS} from '../../../data/addbid/INITIAL_ITEMS';
@@ -27,7 +30,9 @@ import BidItemStepMiscWork from '../../../components/addbid/BidItemStepMiscWork'
 import {useDispatch, useSelector} from 'react-redux';
 import ActivityIndicatorModal from '../../../components/modal/ActivityIndicatorModal';
 import Toast from 'react-native-toast-message';
-import {addBid} from '../../../store/slices/bid';
+import {addBid, emptyAddItem} from '../../../store/slices/bid';
+
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 // import RenderCostSummary from '../../../components/addbid/RenderCostSummary';
 // Constants
 
@@ -41,7 +46,7 @@ const STEP_DETAILS = {
   6: {title: 'Misc. Work'},
 };
 
-const AddBid = () => {
+const AddBid = ({route}) => {
   const dispatch = useDispatch();
   // State Management
   const {isLoading, isAddBidLoading} = useSelector(state => state.bid);
@@ -52,7 +57,8 @@ const AddBid = () => {
   const [area, setArea] = useState('');
 
   const [addBidData, setAddBidData] = useState(null);
-  console.log('addBidData ---------->', addBidData);
+  const [currentSectionId, setCurrentSectionId] = useState('');
+  const [currentSection, setCurrentSection] = useState('');
 
   const [totalProjectCost, setTotalProjectCost] = useState(0);
   const [markupPercentage, setMarkupPercentage] = useState(0);
@@ -95,18 +101,20 @@ const AddBid = () => {
       sections: addBidData,
       markupPercentage: markupPercentage,
     };
+
     dispatch(addBid(data))
       .then(response => {
-        navigation.navigate('SubmitBid', {bidData});
+        navigation.navigate('SubmitBid', {
+          bidId: response?.data?.bid_id,
+        });
+        dispatch(emptyAddItem());
         Toast.show({
-          type: 'error',
-          text1: 'Error',
+          type: 'success',
+          text1: 'Success',
           text2: response?.data?.message || 'Bid added successfully',
         });
       })
       .catch(error => {
-        console.log('error -------->', error);
-        console.log('error -------->', error?.response?.data);
         Toast.show({
           type: 'error',
           text1: 'Error',
@@ -146,7 +154,14 @@ const AddBid = () => {
           </View>
         ))}
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      {/* <ScrollView contentContainerStyle={styles.content}> */}
+      {/* <KeyboardAwareScrollView
+        contentContainerStyle={{flexGrow: 1}}
+        onKeyboardWillShow={() => setKeyboardVisible(true)}
+        onKeyboardWillHide={() => setKeyboardVisible(false)}
+        // showsVerticalScrollIndicator={false}
+      > */}
+      <View style={styles.content}>
         {/* {renderStepContent()} */}
         {step === 1 ? (
           <BidInformation
@@ -159,23 +174,53 @@ const AddBid = () => {
             handleData={handleData}
           />
         ) : step === 2 ? (
-          <BidItemStepPlumbing handleData={handleData} />
+          <BidItemStepPlumbing
+            handleData={handleData}
+            setCurrentSectionId={setCurrentSectionId}
+            setCurrentSection={setCurrentSection}
+          />
         ) : step === 3 ? (
-          <BidItemStepHVAC handleData={handleData} />
+          <BidItemStepHVAC
+            handleData={handleData}
+            setCurrentSectionId={setCurrentSectionId}
+            setCurrentSection={setCurrentSection}
+          />
         ) : step === 4 ? (
-          <BidItemStepElectric handleData={handleData} />
+          <BidItemStepElectric
+            handleData={handleData}
+            setCurrentSectionId={setCurrentSectionId}
+            setCurrentSection={setCurrentSection}
+          />
         ) : step === 5 ? (
-          <BidItemStepGeneral handleData={handleData} />
+          <BidItemStepGeneral
+            handleData={handleData}
+            setCurrentSectionId={setCurrentSectionId}
+            setCurrentSection={setCurrentSection}
+          />
         ) : (
-          step === 6 && <BidItemStepMiscWork handleData={handleData} />
+          step === 6 && (
+            <BidItemStepMiscWork
+              handleData={handleData}
+              setCurrentSectionId={setCurrentSectionId}
+              setCurrentSection={setCurrentSection}
+            />
+          )
         )}
-      </ScrollView>
+      </View>
+      {/* </KeyboardAwareScrollView> */}
+      {/* </ScrollView> */}
 
       {step !== 1 && (
         <View style={{marginHorizontal: 10}}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('AddItem')}
-            style={styles.addItemButton}>
+            onPress={() =>
+              navigation.navigate('AddItem', {
+                sectionId: currentSectionId,
+                currentSection: currentSection,
+              })
+            }
+            style={styles.addItemButton}
+            disabled={isLoading}>
             <View style={styles.leftIndicatorBlue}></View>
             <Image
               source={require('../../../../assets/icons/upload.png')}

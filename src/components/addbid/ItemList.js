@@ -16,7 +16,7 @@ import Toast from 'react-native-toast-message';
 import AddModal from './AddModal';
 
 const ItemList = ({item, data, setData}) => {
-  const [isChecked, setIsChecked] = useState(item.checked);
+  const [isChecked, setIsChecked] = useState(item.completionStatus);
   const [showItemActions, setShowItemActions] = useState(false);
 
   const [modalType, setModalType] = useState('');
@@ -36,7 +36,6 @@ const ItemList = ({item, data, setData}) => {
   // }, [unitCost, quantity]);
 
   const handleModalSubmit = () => {
-    console.log('modal type ----->', modalType);
     setData(prevData =>
       prevData.map(d =>
         d._id === item._id
@@ -61,7 +60,7 @@ const ItemList = ({item, data, setData}) => {
         d._id === item._id
           ? {
               ...d,
-              completionStatus: isChecked,
+              completionStatus: !d?.completionStatus,
             }
           : d,
       ),

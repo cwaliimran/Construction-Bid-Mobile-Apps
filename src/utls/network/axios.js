@@ -88,13 +88,22 @@ export const API_ENDPOINTS = {
   },
   bid: {
     getBids: 'home/bids',
+    getBid: 'bids/get',
     deleteBid: 'bids/delete',
     getBidPropertyType: 'sectionInfo/fetch',
-    getBidPlumbingItem: "sectionInfo/fetchPlumbing",
-    getBidHVACItem: "sectionInfo/fetchHVAC",
-    getBidElectricItem: "sectionInfo/fetchElectric",
+    getBidPlumbingItem: 'sectionInfo/fetchPlumbing',
+    getBidHVACItem: 'sectionInfo/fetchHVAC',
+    getBidElectricItem: 'sectionInfo/fetchElectric',
     getBidGeneralItem: 'sectionInfo/fetchGeneral',
     getBidMiscWorkItem: 'sectionInfo/fetchMiscellaneousWork',
-    addBid: 'bids/add'
+    addBid: 'bids/add',
+    updateBid: 'bids/update',
+    addItem: 'items/add',
+    updateItem: 'items/update',
+    getSections: 'sections/all',
+  },
+  download: {
+    bidPdfDownload: 'bids/send_pdf',
+    bidPdfSend: 'bids/send_pdf',
   },
 };

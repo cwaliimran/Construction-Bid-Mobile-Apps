@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {colors, fonts, fontSizes} from '../../../utls/styles';
 
 const styles = StyleSheet.create({
   container: {
@@ -310,6 +311,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', // Ensures spacing on both ends
     marginTop: 20,
     marginBottom: 20,
+    paddingHorizontal: 16,
   },
   backButton: {
     width: 32, // Ensure the button has a width even if back icon is not visible
@@ -451,6 +453,45 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  dropdownContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    height: 50,
+    width: '100%',
+    marginBottom: 15,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#D3D3D3',
+  },
+  dropdown: {
+    flex: 1,
+    height: 50,
+    fontFamily: fonts.Regular,
+  },
+  placeholderStyle: {
+    fontSize: fontSizes.small,
+    paddingHorizontal: 10,
+    fontFamily: fonts.Regular,
+    color: colors.grey,
+  },
+  dropDownInput: {
+    paddingHorizontal: 10,
+    fontFamily: fonts.Regular,
+    fontSize: fontSizes.small,
+    color: colors.black,
+    flex: 1,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: fontSizes.medium,
+    fontFamily: fonts.Regular,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    color: colors.black,
   },
 });
 export default styles;

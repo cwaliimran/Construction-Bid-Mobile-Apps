@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {fonts} from '../../utls/styles';
+import {colors, fonts} from '../../utls/styles';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -254,6 +254,21 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#E5E5E5',
     marginVertical: 4,
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: colors.blue,
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingLeft: 10,
+    height: 50,
+    marginBottom: 20,
+  },
+  img: {
+    width: 22,
+    height: 22,
+    resizeMode: 'contain',
   },
 });
 export default styles;

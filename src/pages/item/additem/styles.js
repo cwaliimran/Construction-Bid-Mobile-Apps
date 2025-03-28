@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {colors} from '../../../utls/styles';
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    // marginBottom: 16,
     gap: 12,
   },
   checkbox: {
@@ -159,6 +160,11 @@ const styles = StyleSheet.create({
   },
   continueText: {
     textAlign: 'center', // Additional centering for the text
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 4,
   },
 });
 

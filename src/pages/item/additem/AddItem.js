@@ -9,36 +9,66 @@ import {
   ScrollView,
   Modal,
 } from 'react-native';
+import {Formik} from 'formik';
+import * as Yup from 'yup';
 import styles from './styles';
-import {Picker} from '@react-native-picker/picker';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {addItem} from '../../../store/slices/bid';
+import ActivityIndicatorModal from '../../../components/modal/ActivityIndicatorModal';
+import Toast from 'react-native-toast-message';
 
-const AddItem = () => {
+const AddItem = ({route}) => {
+  const {sectionId, currentSection} = route.params;
+  const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [sectionType, setSectionType] = useState('');
-  const [itemName, setItemName] = useState('');
-  const [sku, setSKU] = useState('');
-  const [brand, setBrand] = useState('');
-  const [unitCost, setUnitCost] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [completionStatus, setCompletionStatus] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = React.useState(false);
 
-  const sectionOptions = [
-    'Plumbing',
-    'HVAC',
-    'Electric',
-    'General',
-    'Misc. Work',
-  ];
+  const {isLoading} = useSelector(state => state.bid);
 
-  const getTotalCost = () => {
-    return (unitCost * quantity).toFixed(2);
-  };
+  // **🔹 Validation Schema with Yup**
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string().required('Item Name is required'),
+    sku: Yup.string().required('SKU is required'),
+    brand: Yup.string().required('Brand is required'),
+    unitCost: Yup.number()
+      .typeError('Unit Cost must be a number')
+      .positive('Unit Cost must be positive')
+      .required('Unit Cost is required'),
+    quantity: Yup.number()
+      .typeError('Quantity must be a number')
+      .positive('Quantity must be positive')
+      .integer('Quantity must be an integer')
+      .required('Quantity is required'),
+    // completionStatus: Yup.boolean().oneOf(
+    //   [true],
+    //   'Completion Status must be checked',
+    // ),
+  });
 
-  const handleAddItem = () => {
-    // Add your item saving logic here
-    setShowSuccessModal(true);
+  const handleAddItem = (values, {resetForm}) => {
+    const data = {
+      sectionId: sectionId,
+      itemName: values.itemName,
+      hdSku: values.sku,
+      brand: values.brand,
+      unitCost: Number(values.unitCost),
+      quantity: Number(values.quantity),
+      completionStatus: values.completionStatus,
+    };
+
+    dispatch(addItem(data))
+      .then(response => {
+        setShowSuccessModal(true);
+        resetForm();
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: error?.response?.data?.error || 'Something went wrong',
+        });
+      });
   };
 
   const handleBack = () => {
@@ -52,6 +82,8 @@ const AddItem = () => {
 
   return (
     <View style={styles.mainContainer}>
+      {isLoading && <ActivityIndicatorModal />}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image
@@ -63,103 +95,156 @@ const AddItem = () => {
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Section Type</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={sectionType}
-                style={styles.picker}
-                onValueChange={itemValue => setSectionType(itemValue)}>
-                <Picker.Item label="Select section type" value="" />
-                {sectionOptions.map((option, index) => (
-                  <Picker.Item key={index} label={option} value={option} />
-                ))}
-              </Picker>
-            </View>
-          </View>
+      <Text
+        style={[
+          styles.label,
+          {textAlign: 'center', marginTop: 10, color: '#007AFF'},
+        ]}>
+        Add new item to {currentSection}
+      </Text>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Item Name</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={setItemName}
-              value={itemName}
-              placeholder="Enter description of the specific item"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>HD SKU</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={setSKU}
-              value={sku}
-              placeholder="Enter SKU or brand name of the specific item"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Brand</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={setBrand}
-              value={brand}
-              placeholder="Enter brand name of the specific item"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Unit Cost</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={setUnitCost}
-              value={unitCost}
-              placeholder="Enter unit cost of the specific item"
-              keyboardType="numeric"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Quantity</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={setQuantity}
-              value={quantity}
-              placeholder="Enter the number of units needed for the project"
-              keyboardType="numeric"
-            />
-          </View>
-
-          <View style={styles.statusContainer}>
-            <TouchableOpacity
-              style={styles.checkbox}
-              onPress={() => setCompletionStatus(!completionStatus)}>
-              {completionStatus && (
-                <Image
-                  source={require('../../../../assets/icons/check.png')}
-                  style={styles.checkIcon}
+      {/* Formik Form */}
+      <Formik
+        initialValues={{
+          itemName: '',
+          sku: '',
+          brand: '',
+          unitCost: '',
+          quantity: '',
+          completionStatus: false,
+        }}
+        validationSchema={validationSchema}
+        onSubmit={handleAddItem}>
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+          setFieldValue,
+        }) => (
+          <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}>
+            <View style={styles.form}>
+              {/* Item Name */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Item Name</Text>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={handleChange('itemName')}
+                  onBlur={handleBlur('itemName')}
+                  value={values.itemName}
+                  placeholder="Enter description of the specific item"
                 />
-              )}
-            </TouchableOpacity>
-            <Text style={styles.statusText}>Completion Status</Text>
-          </View>
+                {touched.itemName && errors.itemName && (
+                  <Text style={styles.errorText}>{errors.itemName}</Text>
+                )}
+              </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Total Cost</Text>
-            <Text style={styles.totalCost}>{`$ ${getTotalCost()}`}</Text>
-          </View>
+              {/* SKU */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>HD SKU</Text>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={handleChange('sku')}
+                  onBlur={handleBlur('sku')}
+                  value={values.sku}
+                  placeholder="Enter SKU or brand name"
+                />
+                {touched.sku && errors.sku && (
+                  <Text style={styles.errorText}>{errors.sku}</Text>
+                )}
+              </View>
 
-          <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
-            <Text style={styles.buttonText}>Add Item</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+              {/* Brand */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Brand</Text>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={handleChange('brand')}
+                  onBlur={handleBlur('brand')}
+                  value={values.brand}
+                  placeholder="Enter brand name"
+                />
+                {touched.brand && errors.brand && (
+                  <Text style={styles.errorText}>{errors.brand}</Text>
+                )}
+              </View>
 
+              {/* Unit Cost */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Unit Cost</Text>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={handleChange('unitCost')}
+                  onBlur={handleBlur('unitCost')}
+                  value={values.unitCost}
+                  placeholder="Enter unit cost"
+                  keyboardType="numeric"
+                />
+                {touched.unitCost && errors.unitCost && (
+                  <Text style={styles.errorText}>{errors.unitCost}</Text>
+                )}
+              </View>
+
+              {/* Quantity */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Quantity</Text>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={handleChange('quantity')}
+                  onBlur={handleBlur('quantity')}
+                  value={values.quantity}
+                  placeholder="Enter quantity"
+                  keyboardType="numeric"
+                />
+                {touched.quantity && errors.quantity && (
+                  <Text style={styles.errorText}>{errors.quantity}</Text>
+                )}
+              </View>
+
+              {/* Completion Status */}
+              <View style={styles.statusContainer}>
+                <TouchableOpacity
+                  style={styles.checkbox}
+                  onPress={() =>
+                    setFieldValue('completionStatus', !values.completionStatus)
+                  }>
+                  {values.completionStatus && (
+                    <Image
+                      source={require('../../../../assets/icons/check.png')}
+                      style={styles.checkIcon}
+                    />
+                  )}
+                </TouchableOpacity>
+                <Text style={styles.statusText}>Completion Status</Text>
+              </View>
+              {/* {touched.completionStatus && errors.completionStatus && (
+                <Text style={styles.errorText}>{errors.completionStatus}</Text>
+              )} */}
+
+              {/* Total Cost */}
+              <View style={[styles.inputGroup, {marginTop: 10}]}>
+                <Text style={styles.label}>Total Cost</Text>
+                <Text style={styles.totalCost}>{`$ ${(
+                  (parseFloat(values.unitCost) || 0) *
+                  (parseInt(values.quantity) || 0)
+                ).toFixed(2)}`}</Text>
+              </View>
+
+              {/* Submit Button */}
+              <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
+                <Text style={styles.buttonText}>Add Item</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        )}
+      </Formik>
+
+      {/* Success Modal */}
       <Modal
         animationType="fade"
         transparent={true}

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// const HOST_API = `http://18.221.36.251/`;
-const HOST_API = `http://192.168.100.20:5000/`;
+const HOST_API = `http://18.221.36.251/`;
+// const HOST_API = `http://192.168.100.82:5000/`;
 
 export const postRequest = async ({endpoint, payload}) => {
   let response = await axios.post(`${HOST_API}${endpoint}`, payload);

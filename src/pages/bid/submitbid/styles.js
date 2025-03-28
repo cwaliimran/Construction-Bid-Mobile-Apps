@@ -75,6 +75,48 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center', // Ensures text is centered within its component
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Adjust the opacity here if needed
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%', // Ensure it covers the full width
+    height: '100%', // Ensure it covers the full height
+    position: 'absolute', // Ensures it covers the entire screen
+    top: 0,
+    left: 0,
+    zIndex: 99,
+  },
+
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 22,
+    borderRadius: 8,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+  },
+  modalButton: {
+    backgroundColor: '#1D75D8',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default styles;

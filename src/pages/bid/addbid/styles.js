@@ -7,6 +7,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   content: {
+    flex: 1,
     paddingHorizontal: 16,
   },
   deleteModalContent: {
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 5,
+    paddingVertical: 2,
   },
   costLabel: {
     fontSize: 16,
@@ -333,10 +334,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#007AFF',
     borderRadius: 10,
-    paddingVertical: 20,
+    // paddingVertical: 20,
     paddingHorizontal: 10,
-    height: 66,
-    marginTop: 10,
+    height: 50,
+    // marginTop: 10,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -357,12 +358,6 @@ const styles = StyleSheet.create({
     position: 'relative', // This ensures the positioning context is set correctly
     overflow: 'hidden', // Ensures nothing spills out, particularly the blue line
     backgroundColor: '#FFF', // Ensures the background matches
-  },
-  costRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 5,
   },
   costLabel: {
     fontSize: 16,
@@ -485,7 +480,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingBottom: 16,
     backgroundColor: '#FFF',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: -2},
@@ -568,6 +563,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     color: colors.black,
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: colors.blue,
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingLeft: 10,
+    height: 50,
+    marginBottom: 20,
+  },
+  img: {
+    width: 22,
+    height: 22,
+    resizeMode: 'contain',
   },
 });
 export default styles;

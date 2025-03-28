@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,42 +6,188 @@ import {
   SafeAreaView,
   ScrollView,
   Image,
+  TextInput,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {INITIAL_ITEMS} from '../../../data/addbid/INITIAL_ITEMS';
 import styles from './styles';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  emptyAddItem,
+  getBid,
+  getBidPropertyType,
+  getSections,
+  setUpdateBidPropertySection,
+  updateBid,
+} from '../../../store/slices/bid';
+import ActivityIndicator from '../../../components/modal/ActivityIndicator';
+import {colors, fonts} from '../../../utls/styles';
+
+import ChevronIcon from 'react-native-vector-icons/Feather';
+import {Dropdown} from 'react-native-element-dropdown';
+import Toast from 'react-native-toast-message';
+import ActivityIndicatorModal from '../../../components/modal/ActivityIndicatorModal';
 
 const InitialData = INITIAL_ITEMS;
 
-const STEP_DETAILS = {
-  2: {title: 'Plumbing'},
-  3: {title: 'HVAC'},
-  4: {title: 'Electric'},
-  5: {title: 'General'},
-  6: {title: 'Misc. Work'},
-};
-
 const ViewBid = ({route}) => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
-  const {bidData} = route.params;
+  const {bidId} = route.params;
 
-  const [currentStep, setCurrentStep] = React.useState(bidData.step || 1);
-  const [showItemActions, setShowItemActions] = React.useState(null);
+  const {isLoading, isAddBidLoading, bid} = useSelector(state => state.bid);
 
-  // Get items directly from bidData or use InitialData as fallback
-  const items = bidData.itemsByStep || InitialData;
+  const [stepDetails, setStepDetails] = useState(null);
+
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showItemActions, setShowItemActions] = useState(null);
+
+  // Get items directly from bid or use InitialData as fallback
+
+  // remove this 678b5d9f713248c7aca857be from bid?.sections
+
+  const [items, setItems] = useState(null);
+  const [propertySection, setPropertySections] = useState(null);
+
+  console.log('propertySection ------->', propertySection);
+
+  console.log('items ------->', items);
+
+  const [propertyOptions, setPropertyOptions] = useState([]);
+
+  const [selectedProperty, setSelectedProperty] = useState({});
+
+  const [finalCost, setFinalCost] = useState(0);
+
+  const [address, setAddress] = useState('');
+  const [area, setArea] = useState('');
+
+  console.log('selectedProperty ------->', selectedProperty);
+  console.log('propertyOptions -------->', propertyOptions);
+  console.log('bid ------->', bid);
+  console.log('stepDetails ------->', stepDetails);
+
+  const renderItem = () => (
+    <ChevronIcon
+      name="chevron-down"
+      size={24}
+      color={colors.black}
+      style={{marginRight: 10}}
+    />
+  );
+
+  useEffect(() => {
+    if (bid) {
+      setItems(
+        Object?.fromEntries(
+          Object?.entries(bid?.sections)?.filter(
+            ([key]) => key !== '678b5d9f713248c7aca857be',
+          ),
+        ),
+      );
+
+      setPropertySections(
+        Object?.fromEntries(
+          Object?.entries(bid?.sections)?.filter(
+            ([key]) => key === '678b5d9f713248c7aca857be',
+          ),
+        ),
+      );
+
+      setSelectedProperty({
+        _id: bid?.sections?.['678b5d9f713248c7aca857be']?.propertyId,
+        name: bid?.sections?.['678b5d9f713248c7aca857be']?.propertyName,
+      });
+
+      setFinalCost(
+        bid?.totalProjectCost +
+          (bid?.totalProjectCost * bid?.markupPercentage) / 100,
+      );
+    }
+  }, [bid]);
+
+  useEffect(() => {
+    if (propertySection) {
+      setAddress(
+        (propertySection &&
+          propertySection[Object.keys(propertySection)[0]]?.address) ||
+          '',
+      );
+
+      setArea(
+        (propertySection &&
+          propertySection[Object.keys(propertySection)[0]]?.areaSqft) ||
+          '',
+      );
+    }
+  }, [propertySection]);
+
+  useEffect(async () => {
+    await dispatch(getBid(bidId))
+      .then(response => {})
+      .catch(error => {});
+
+    await dispatch(getSections())
+      .then(response => {
+        const transformed = response?.data?.sections
+          ?.slice(1)
+          ?.reduce((acc, item, index) => {
+            acc[item?._id] = {
+              title:
+                item.name === 'Miscellaneous Work' ? 'Misc. Work' : item.name,
+            };
+            return acc;
+          }, {});
+
+        setStepDetails(transformed);
+      })
+      .catch(error => {});
+    await dispatch(getBidPropertyType())
+      .then(response => {
+        setPropertyOptions(response?.data?.properties);
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: error?.response?.data?.error || 'Something went wrong',
+        });
+      });
+  }, []);
 
   const goToHomePage = () => navigation.navigate('Home');
 
   const handleUpdate = () => {
-    navigation.navigate('UpdateBid', {bidData});
+    // navigation.navigate('UpdateBid', {bid});
+
+    console.log('bid ------->', bid);
+
+    dispatch(updateBid(bid))
+      .then(response => {
+        navigation.navigate('SubmitBid', {
+          bidId: response?.data?.bidId,
+        });
+        dispatch(emptyAddItem());
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: response?.data?.message || 'Bid update successfully',
+        });
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: error?.response?.data?.error || 'Something went wrong',
+        });
+      });
   };
 
-  const handleEditItem = item => {
+  const handleEditItem = (item, currentItems) => {
     navigation.navigate('EditItem', {
       item,
-      bidData,
-      step: currentStep,
+      sectionId: currentItems?.sectionId,
+      sectionName: currentItems?.sectionName,
     });
   };
 
@@ -53,13 +199,45 @@ const ViewBid = ({route}) => {
     <>
       <Text style={styles.sectionTitle}>Bid Information</Text>
       <Text style={styles.heading}>Address</Text>
+
       <View style={styles.inputContainer}>
         <Image
           source={require('../../../../assets/icons/location.png')}
           style={styles.icon}
         />
+        <TextInput
+          placeholder="Enter your address"
+          style={styles.input}
+          placeholderTextColor="#CCCCCC"
+          value={address}
+          onChangeText={text => setAddress(text)}
+        />
+      </View>
+      <Text style={styles.heading}>Area SQ.FT</Text>
+      <View style={styles.inputContainer}>
+        <Image
+          source={require('../../../../assets/icons/location.png')}
+          style={styles.icon}
+        />
+        <TextInput
+          placeholder="Enter Area (sq.ft)"
+          style={styles.input}
+          placeholderTextColor="#CCCCCC"
+          keyboardType="numeric"
+          value={area?.toString()}
+          onChangeText={text => setArea(text)}
+        />
+      </View>
+
+      {/* <View style={styles.inputContainer}>
+        <Image
+          source={require('../../../../assets/icons/location.png')}
+          style={styles.icon}
+        />
         <Text style={styles.viewText}>
-          {bidData.address || 'No address provided'}
+          {(propertySection &&
+            propertySection[Object.keys(propertySection)[0]]?.address) ||
+            'No address provided'}
         </Text>
       </View>
       <Text style={styles.heading}>Area SQ.FT</Text>
@@ -69,36 +247,70 @@ const ViewBid = ({route}) => {
           style={styles.icon}
         />
         <Text style={styles.viewText}>
-          {bidData.area ? `${bidData.area} sq.ft` : 'No area specified'}
+          {propertySection &&
+          propertySection[Object.keys(propertySection)[0]]?.areaSqft
+            ? `${
+                propertySection[Object.keys(propertySection)[0]]?.areaSqft
+              } sq.ft`
+            : 'No area specified'}
         </Text>
-      </View>
+      </View> */}
       <Text style={styles.heading}>Property Type</Text>
-      <View style={styles.inputContainer}>
+      {/* <View style={styles.inputContainer}>
         <Text style={styles.viewText}>
-          {bidData.propertyType || 'No property type specified'}
+          {(propertySection &&
+            propertySection[Object.keys(propertySection)[0]]?.propertyType) ||
+            'No property type specified'}
         </Text>
+      </View> */}
+      <View style={styles.dropdownContainer}>
+        <Dropdown
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderStyle}
+          placeholder="Select Property"
+          selectedTextStyle={styles.dropDownInput}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          renderRightIcon={renderItem}
+          data={propertyOptions}
+          // search
+          // searchPlaceholder={t('search')}
+          fontFamily={fonts.Regular}
+          maxHeight={300}
+          labelField="name"
+          valueField="name"
+          value={selectedProperty?.name}
+          onChange={item => {
+            setSelectedProperty(item);
+          }}
+        />
       </View>
     </>
   );
 
   const renderStepItems = () => {
     // Get items for current step
-    const currentItems = items[currentStep] || [];
+
+    const renderStepItems = () =>
+      items?.[Object.keys(items)?.[currentStep - 2]] || [];
+
+    const currentItems = renderStepItems();
+
+    console.log('renderStepItems ------>', renderStepItems());
+    console.log('currentItems ------>', currentItems);
 
     return (
       <>
-        <Text style={styles.sectionTitle}>
-          {STEP_DETAILS[currentStep]?.title}
-        </Text>
-        {currentItems.length === 0 ? (
+        <Text style={styles.sectionTitle}>{currentItems?.sectionName}</Text>
+        {currentItems?.items?.length === 0 ? (
           <Text style={styles.noItemsText}>No items found for this step</Text>
         ) : (
-          currentItems.map(item => (
+          currentItems?.items?.map(item => (
             <View key={item.id} style={styles.itemContainer}>
               <View style={styles.leftIndicator} />
               <View style={styles.itemDetails}>
                 <View>
-                  <Text style={styles.itemName}>{item.name}</Text>
+                  <Text style={styles.itemName}>{item.itemName}</Text>
                   {(item.hdSku || item.brand) && (
                     <Text style={styles.itemSubtext}>
                       {item.hdSku && `HD SKU: ${item.hdSku}`}{' '}
@@ -109,14 +321,14 @@ const ViewBid = ({route}) => {
                 <View style={styles.actions}>
                   <Image
                     source={
-                      item.checked
+                      item.completionStatus
                         ? require('../../../../assets/icons/check.png')
                         : require('../../../../assets/icons/uncheck.png')
                     }
                     style={styles.icon}
                   />
                   <TouchableOpacity
-                    onPress={() => handleEditItem(item)}
+                    onPress={() => handleEditItem(item, currentItems)}
                     style={styles.actionButton}>
                     <Image
                       source={require('../../../../assets/icons/edit.png')}
@@ -160,14 +372,13 @@ const ViewBid = ({route}) => {
                 <View style={styles.inputWrapper}>
                   <Text style={styles.inputLabell}>Total</Text>
                   <Text style={styles.inputValuee}>
-                    ${parseFloat(item.total || 0).toFixed(2)}
+                    ${parseFloat(item.totalCost || 0).toFixed(2)}
                   </Text>
                 </View>
               </View>
             </View>
           ))
         )}
-        {renderCostSummary()}
       </>
     );
   };
@@ -178,13 +389,13 @@ const ViewBid = ({route}) => {
       <View style={styles.costRow}>
         <Text style={styles.costLabel}>Total Project Cost</Text>
         <Text style={styles.costValuee}>
-          ${parseFloat(bidData.totalProjectCost || 0).toFixed(2)}
+          ${parseFloat(bid?.totalProjectCost || 0).toFixed(2)}
         </Text>
       </View>
       <View style={styles.costRow}>
         <Text style={styles.costLabel}>Markup Percentage</Text>
         <Text style={styles.costValuee}>
-          {parseFloat(bidData.markupPercentage || 0).toFixed(1)}%
+          {parseFloat(bid?.markupPercentage || 0).toFixed(1)}%
         </Text>
       </View>
       {/* Horizontal line divider */}
@@ -192,7 +403,7 @@ const ViewBid = ({route}) => {
       <View style={styles.costRow}>
         <Text style={styles.costLabel}>Final Cost</Text>
         <Text style={styles.costValue}>
-          ${parseFloat(bidData.finalCost || 0).toFixed(2)}
+          ${parseFloat(finalCost || 0).toFixed(2)}
         </Text>
       </View>
     </View>
@@ -207,36 +418,38 @@ const ViewBid = ({route}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={goToHomePage} style={styles.backButton}>
-            <Image
-              source={require('../../../../assets/icons/back-icon.png')}
-              style={styles.backIcon}
-            />
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.headerTitle}>{bidData.tittle}</Text>
+      {isAddBidLoading && <ActivityIndicatorModal />}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={goToHomePage} style={styles.backButton}>
+          <Image
+            source={require('../../../../assets/icons/back-icon.png')}
+            style={styles.backIcon}
+          />
+        </TouchableOpacity>
+        <View style={styles.titleContainer}>
+          <Text style={styles.headerTitle}>Update Bid</Text>
+        </View>
+        <View style={styles.placeholder} />
+      </View>
+
+      <View style={styles.stepIndicator}>
+        {[1, 2, 3, 4, 5, 6].map(item => (
+          <View
+            key={item}
+            style={[
+              styles.stepCircle,
+              currentStep >= item && styles.activeStep,
+            ]}>
+            <Text style={styles.stepText}>{item}</Text>
           </View>
-          <View style={styles.placeholder} />
-        </View>
-
-        <View style={styles.stepIndicator}>
-          {[1, 2, 3, 4, 5, 6].map(item => (
-            <View
-              key={item}
-              style={[
-                styles.stepCircle,
-                currentStep >= item && styles.activeStep,
-              ]}>
-              <Text style={styles.stepText}>{item}</Text>
-            </View>
-          ))}
-        </View>
-
-        {renderStepContent()}
+        ))}
+      </View>
+      <ScrollView contentContainerStyle={styles.content}>
+        {isLoading ? <ActivityIndicator /> : renderStepContent()}
       </ScrollView>
-
+      <View style={{marginHorizontal: 10, marginTop: 10}}>
+        {currentStep !== 1 && renderCostSummary()}
+      </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
@@ -251,12 +464,28 @@ const ViewBid = ({route}) => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
+          style={isLoading ? styles.disabledButton : styles.button}
           onPress={
             currentStep === 6
               ? handleUpdate
-              : () => setCurrentStep(currentStep + 1)
-          }>
+              : () => {
+                  currentStep === 1 &&
+                    dispatch(
+                      setUpdateBidPropertySection({
+                        sectionId:
+                          propertySection &&
+                          propertySection[Object.keys(propertySection)[0]]
+                            ?.sectionId,
+                        address: address,
+                        areaSqft: area,
+                        propertyId: selectedProperty?._id,
+                        propertyName: selectedProperty?.name,
+                      }),
+                    );
+                  setCurrentStep(currentStep + 1);
+                }
+          }
+          disabled={isLoading}>
           <Text style={styles.buttonText}>
             {currentStep === 6 ? 'Update' : 'Next'}
           </Text>

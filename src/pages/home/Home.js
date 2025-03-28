@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import {Swipeable} from 'react-native-gesture-handler';
 import styles from './styles';
@@ -16,11 +17,13 @@ import {useDispatch, useSelector} from 'react-redux';
 import {setUser} from '../../store/slices/user';
 import GeneralModal from '../../components/modal/general-modal';
 import ActivityIndicatorModal from '../../components/modal/ActivityIndicatorModal';
-import {deleteBid, getBids} from '../../store/slices/bid';
+import {deleteBid, emptyAddItem, getBids} from '../../store/slices/bid';
 import ActivityIndicator from '../../components/modal/ActivityIndicator';
-import {commonStyles} from '../../utls/styles';
+import {colors, commonStyles} from '../../utls/styles';
 import moment from 'moment';
 import Toast from 'react-native-toast-message';
+import {useFocusEffect} from '@react-navigation/native';
+import LoaderKit from 'react-native-loader-kit';
 
 const Home = ({navigation}) => {
   // API data
@@ -29,7 +32,9 @@ const Home = ({navigation}) => {
   const [errMsg, setErrMsg] = useState('');
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
 
-  const {isLoading, isDeleteLoading, bids} = useSelector(state => state.bid);
+  const {isLoading, isDeleteLoading, bids, totalPages} = useSelector(
+    state => state.bid,
+  );
 
   const [showPopup, setShowPopup] = useState(false);
 
@@ -37,6 +42,10 @@ const Home = ({navigation}) => {
   const [selectedBidId, setSelectedBidId] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  const [isMoreLoading, setIsMoreLoading] = useState(false);
   // const fetchBids = async () => {
   //   // setRefreshing(true);
   //   // try {
@@ -64,18 +73,31 @@ const Home = ({navigation}) => {
   // };
 
   const fetchBids = async () => {
-    await dispatch(getBids());
+    await dispatch(getBids(page, search));
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(emptyAddItem());
+    }, []),
+  );
+
   useEffect(() => {
+    setPage(1);
     fetchBids();
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+    fetchBids();
+  }, [search]);
 
   // const onRefresh = () => {
   //   fetchBids();
   // };
 
   const onRefresh = () => {
+    setPage(1);
     setRefreshing(true);
     fetchBids();
     setRefreshing(false);
@@ -118,6 +140,39 @@ const Home = ({navigation}) => {
           text2: error?.response?.data?.error || 'Something went wrong',
         });
       });
+  };
+
+  const handleSearch = () => {
+    setPage(1);
+    fetchBids();
+  };
+
+  const renderFooter = () => {
+    if (!isMoreLoading) return null;
+    return (
+      <View style={{paddingVertical: 20, alignSelf: 'center'}}>
+        <LoaderKit
+          style={{width: 40, height: 40}}
+          name={'BallSpinFadeLoader'}
+          color={colors.blue}
+        />
+      </View>
+    );
+  };
+
+  const handleLoadMore = () => {
+    if (!isMoreLoading && page < totalPages) {
+      setIsMoreLoading(true);
+      const nextPage = page + 1;
+      dispatch(getBids(nextPage, search))
+        .then(() => {
+          setIsMoreLoading(false);
+          setPage(nextPage);
+        })
+        .catch(error => {
+          setIsMoreLoading(false);
+        });
+    }
   };
 
   const PopupMenu = () => (
@@ -212,11 +267,7 @@ const Home = ({navigation}) => {
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('ViewBid', {
-              bidData: {
-                title: item.title,
-                created: item.created,
-                id: item.id,
-              },
+              bidId: item.id,
             })
           }>
           <View style={styles.bidContainer}>
@@ -241,12 +292,12 @@ const Home = ({navigation}) => {
                 </Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.editButton}>
+            <View style={styles.editButton}>
               <Image
                 source={require('../../../assets/icons/edit.png')}
                 style={styles.editIcon}
               />
-            </TouchableOpacity>
+            </View>
           </View>
         </TouchableOpacity>
       </Swipeable>
@@ -280,14 +331,42 @@ const Home = ({navigation}) => {
 
       <View style={styles.titleAndFilter}>
         <Text style={styles.myBidsTitle}>My Bids</Text>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.filterButton}
           onPress={() => console.log('Filter pressed')}>
           <Image
             source={require('../../../assets/icons/filter.png')}
             style={styles.filterIcon}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+      </View>
+
+      <View style={styles.input}>
+        <Image
+          source={require('../../../assets/icons/search-01.png')}
+          style={styles.img}
+          tintColor={colors.blue}
+        />
+        <TextInput
+          placeholder={'Search'}
+          placeholderTextColor={colors.grey}
+          style={{width: '82%', color: colors.black}}
+          value={search}
+          onChangeText={text => setSearch(text)}
+          onSubmitEditing={handleSearch}
+        />
+        {search.length > 0 && (
+          <TouchableOpacity
+            onPress={() => {
+              setSearch('');
+            }}>
+            <Image
+              source={require('../../../assets/icons/cross.png')}
+              style={styles.img}
+              tintColor={colors.grey}
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
       {isLoading ? (
@@ -302,14 +381,18 @@ const Home = ({navigation}) => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          ListFooterComponent={
-            !isLoading &&
-            bids?.length < 1 && (
-              <View style={{marginVertical: 20}} refre>
-                <Text style={commonStyles.noDataText}>No data found</Text>
-              </View>
-            )
-          }
+          ListFooterComponent={() => (
+            <>
+              {!isLoading && bids?.length < 1 && (
+                <View style={{marginVertical: 20}}>
+                  <Text style={commonStyles.noDataText}>No data found</Text>
+                </View>
+              )}
+              {renderFooter()}
+            </>
+          )}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
         />
       )}
 

@@ -14,6 +14,7 @@ import {Dropdown} from 'react-native-element-dropdown';
 // Import Components
 import {getBidPropertyType} from '../../store/slices/bid';
 import {colors, fonts} from '../../utls/styles';
+import Toast from 'react-native-toast-message';
 
 const BidInformation = ({
   selectedProperty,
@@ -38,13 +39,6 @@ const BidInformation = ({
   );
 
   useEffect(() => {
-    console.log(
-      'object ------>',
-      selectedProperty && area && address,
-      selectedProperty,
-      area,
-      address,
-    );
     if (selectedProperty && selectedProperty?._id && area && address) {
       const parentData = {
         [sectionId]: {
@@ -64,7 +58,11 @@ const BidInformation = ({
         setSectionId(response?.data?.sectionId);
       })
       .catch(error => {
-        console.log('error poroperty api ------->', error?.response?.data);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: error?.response?.data?.error || 'Something went wrong',
+        });
       });
   }, []);
 

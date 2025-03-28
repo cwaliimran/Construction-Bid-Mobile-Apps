@@ -59,8 +59,6 @@ const SignIn = ({navigation}) => {
         navigation.navigate('Home');
       })
       .catch(error => {
-        console.log('err ------->', error);
-        console.log('err res ------->', error?.response?.data);
         setIsLoading(false);
         setErr(true);
         setErrMsg(error?.response?.data?.error || 'Something went wrong');
