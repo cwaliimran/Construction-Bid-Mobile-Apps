@@ -1,6 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {API_ENDPOINTS} from '../../utils/network/axios';
-import {postFormRequest} from '../../utils/network/request';
+import { postFormRequest } from '../../utls/network/request';
+import { API_ENDPOINTS } from '../../utls/network/axios';
 
 const initialState = {
   isUploadLoading: false,

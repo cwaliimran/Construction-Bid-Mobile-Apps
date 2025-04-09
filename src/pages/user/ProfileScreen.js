@@ -19,6 +19,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import GeneralModal from '../../components/modal/general-modal';
 import {getMyProfile} from '../../store/slices/user';
 import ActivityIndicator from '../../components/modal/ActivityIndicator';
+import FastImage from 'react-native-fast-image';
 
 const ProfileScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -60,7 +61,24 @@ const ProfileScreen = ({navigation}) => {
                     style={styles.profileBorder}
                   />
                   <View style={styles.profileImageWrapper}>
-                    <Image
+                    {user?.profilePicture ? (
+                      <FastImage
+                        source={{
+                          uri: user?.profilePicture,
+                          priority: FastImage.priority.high,
+                        }}
+                        style={styles.profileImage}
+                        resizeMode={FastImage.resizeMode.cover}
+                      />
+                    ) : (
+                      <Image
+                        source={require('../../../assets/icons/profile.png')}
+                        style={styles.profileImage}
+                        resizeMode="cover"
+                      />
+                    )}
+
+                    {/* <Image
                       source={
                         user?.profilePicture
                           ? user?.profilePicture
@@ -68,7 +86,7 @@ const ProfileScreen = ({navigation}) => {
                       }
                       style={styles.profileImage}
                       resizeMode="cover"
-                    />
+                    /> */}
                   </View>
                 </View>
 

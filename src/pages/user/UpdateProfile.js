@@ -22,10 +22,13 @@ import ActivityIndicator from '../../components/modal/ActivityIndicator';
 import ActionSheet from 'react-native-actionsheet';
 import ImageCropPicker from 'react-native-image-crop-picker';
 
+import FastImage from 'react-native-fast-image';
+
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 import Toast from 'react-native-toast-message';
 import ActivityIndicatorModal from '../../components/modal/ActivityIndicatorModal';
+import {uploadFile} from '../../store/slices/file';
 
 const UpdateProfileSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -44,6 +47,7 @@ const UpdateProfile = ({navigation}) => {
 
   const {isLoading, user} = useSelector(state => state.auth);
 
+  console.log('user picture ---------->', user?.profilePicture);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const {isUploadLoading} = useSelector(state => state.file);
@@ -95,14 +99,28 @@ const UpdateProfile = ({navigation}) => {
         return;
       }
 
-      const imageData = {
+      const formData = new FormData();
+      formData.append('file', {
         name: image.filename || `camera_image_${Date.now()}`,
         uri: image.path,
         type: image.mime,
-        avatar: false,
-      };
+      });
 
-      setSelectedImageFile(imageData);
+      try {
+        const uploadResponse = await dispatch(uploadFile(formData));
+        setSelectedImageFile(uploadResponse?.data?.data);
+      } catch (error) {
+        setErr(true);
+        setErrMsg(error?.response?.data?.message || 'Something went wrong');
+      }
+      // const imageData = {
+      //   name: image.filename || `camera_image_${Date.now()}`,
+      //   uri: image.path,
+      //   type: image.mime,
+      //   avatar: false,
+      // };
+
+      // setSelectedImageFile(imageData);
     } catch (error) {
       console.log(error.message || 'Something went wrong');
     }
@@ -131,14 +149,30 @@ const UpdateProfile = ({navigation}) => {
         return;
       }
 
-      const imageData = {
+      const formData = new FormData();
+      formData.append('file', {
         name: image.filename || `image_${Date.now()}`,
         uri: image.path,
         type: image.mime,
-        avatar: false,
-      };
+      });
 
-      setSelectedImageFile(imageData);
+      try {
+        const uploadResponse = await dispatch(uploadFile(formData));
+
+        setSelectedImageFile(uploadResponse?.data?.data);
+      } catch (error) {
+        setErr(true);
+        setErrMsg(error?.response?.data?.message || 'Something went wrong');
+      }
+
+      // const imageData = {
+      //   name: image.filename || `image_${Date.now()}`,
+      //   uri: image.path,
+      //   type: image.mime,
+      //   avatar: false,
+      // };
+
+      // setSelectedImageFile(imageData);
     } catch (error) {
       console.log(error.message || 'Something went wrong');
     }
@@ -149,6 +183,11 @@ const UpdateProfile = ({navigation}) => {
       name: values.name,
       email: values.email,
     };
+
+    if (selectedImageFile) {
+      data.profilePicture = selectedImageFile?.fileName;
+    }
+
     await dispatch(updateProfile(data))
       .then(response => {
         navigation.goBack();
@@ -173,7 +212,7 @@ const UpdateProfile = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      {isLoading && <ActivityIndicatorModal />}
+      {(isLoading || isUploadLoading) && <ActivityIndicatorModal />}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -221,17 +260,24 @@ const UpdateProfile = ({navigation}) => {
                         <TouchableOpacity
                           style={styles.profileImageWrapper}
                           onPress={showActionSheet}>
-                          <Image
-                            source={
-                              selectedImageFile
-                                ? selectedImageFile.uri
-                                : user?.profilePicture
-                                ? user?.profilePicture
-                                : require('../../../assets/icons/profile.png')
-                            }
-                            style={styles.profileImage}
-                            resizeMode="cover"
-                          />
+                          {selectedImageFile || user?.profilePicture ? (
+                            <FastImage
+                              source={{
+                                uri:
+                                  selectedImageFile?.fileUrl ||
+                                  user?.profilePicture,
+                                priority: FastImage.priority.high,
+                              }}
+                              style={styles.profileImage}
+                              resizeMode={FastImage.resizeMode.cover}
+                            />
+                          ) : (
+                            <Image
+                              source={require('../../../assets/icons/profile.png')}
+                              style={styles.profileImage}
+                              resizeMode="cover"
+                            />
+                          )}
 
                           <View style={styles.cameraButtonContainer}>
                             <TouchableOpacity

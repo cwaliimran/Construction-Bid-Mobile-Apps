@@ -24,6 +24,7 @@ import moment from 'moment';
 import Toast from 'react-native-toast-message';
 import {useFocusEffect} from '@react-navigation/native';
 import LoaderKit from 'react-native-loader-kit';
+import FastImage from 'react-native-fast-image';
 
 const Home = ({navigation}) => {
   // API data
@@ -35,6 +36,8 @@ const Home = ({navigation}) => {
   const {isLoading, isDeleteLoading, bids, totalPages} = useSelector(
     state => state.bid,
   );
+
+  const {user} = useSelector(state => state.auth);
 
   const [showPopup, setShowPopup] = useState(false);
 
@@ -320,10 +323,22 @@ const Home = ({navigation}) => {
           style={styles.logo}
         />
         <TouchableOpacity onPress={() => setShowPopup(!showPopup)}>
-          <Image
-            source={require('../../../assets/icons/profile.png')}
-            style={styles.profileImage}
-          />
+          {user?.profilePicture ? (
+            <FastImage
+              source={{
+                uri: user?.profilePicture,
+                priority: FastImage.priority.high,
+              }}
+              style={styles.profileImage}
+              resizeMode={FastImage.resizeMode.cover}
+            />
+          ) : (
+            <Image
+              source={require('../../../assets/icons/profile.png')}
+              style={styles.profileImage}
+              resizeMode="cover"
+            />
+          )}
         </TouchableOpacity>
       </View>
       <DeleteConfirmationModal />

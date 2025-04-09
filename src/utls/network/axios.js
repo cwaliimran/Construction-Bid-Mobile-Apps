@@ -106,4 +106,7 @@ export const API_ENDPOINTS = {
     bidPdfDownload: 'bids/send_pdf',
     bidPdfSend: 'bids/send_pdf',
   },
+  upload: {
+    file: 'file/upload',
+  },
 };
