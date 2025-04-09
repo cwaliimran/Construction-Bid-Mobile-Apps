@@ -7,7 +7,7 @@ import {
   TextInput,
   Pressable,
   Modal,
-  FlatList
+  FlatList,
 } from 'react-native';
 
 // Styles
@@ -23,7 +23,7 @@ import {getBidGeneralItem} from '../../store/slices/bid';
 import ActivityIndicator from '../modal/ActivityIndicator';
 import ItemList from './ItemList';
 import Toast from 'react-native-toast-message';
-import { colors } from '../../utls/styles';
+import {colors} from '../../utls/styles';
 
 const BidItemStepGeneral = ({
   handleData,
@@ -52,8 +52,6 @@ const BidItemStepGeneral = ({
       }
     }
   }, [addNewItem]);
-
-  console.log('sectionId ------->', sectionId);
 
   useEffect(() => {
     if (data?.length > 0) {

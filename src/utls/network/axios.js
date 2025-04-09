@@ -108,5 +108,6 @@ export const API_ENDPOINTS = {
   },
   upload: {
     file: 'file/upload',
+    deleteFile: 'file/remove',
   },
 };

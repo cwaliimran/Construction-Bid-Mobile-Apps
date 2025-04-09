@@ -1,6 +1,10 @@
 import {createSlice} from '@reduxjs/toolkit';
-import { postFormRequest } from '../../utls/network/request';
-import { API_ENDPOINTS } from '../../utls/network/axios';
+import {
+  deleteRequest,
+  postFormRequest,
+  putRequest,
+} from '../../utls/network/request';
+import {API_ENDPOINTS} from '../../utls/network/axios';
 
 const initialState = {
   isUploadLoading: false,
@@ -25,6 +29,21 @@ export const uploadFile = payload => async dispatch => {
   try {
     const response = await postFormRequest({
       endpoint: `${API_ENDPOINTS.upload.file}`,
+      payload: payload,
+    });
+    dispatch(actions.setLoading(false));
+    return response;
+  } catch (error) {
+    dispatch(actions.setLoading(false));
+    throw error;
+  }
+};
+
+export const deleteFile = payload => async dispatch => {
+  dispatch(actions.setLoading(true));
+  try {
+    const response = await putRequest({
+      endpoint: `${API_ENDPOINTS.upload.deleteFile}`,
       payload: payload,
     });
     dispatch(actions.setLoading(false));

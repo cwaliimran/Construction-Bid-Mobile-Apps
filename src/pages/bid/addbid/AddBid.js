@@ -33,6 +33,7 @@ import Toast from 'react-native-toast-message';
 import {addBid, emptyAddItem} from '../../../store/slices/bid';
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import UploadBidImages from '../../../components/addbid/UploadBidImages';
 // import RenderCostSummary from '../../../components/addbid/RenderCostSummary';
 // Constants
 
@@ -49,12 +50,15 @@ const STEP_DETAILS = {
 const AddBid = ({route}) => {
   const dispatch = useDispatch();
   // State Management
+  const {isUploadLoading} = useSelector(state => state.file);
   const {isLoading, isAddBidLoading} = useSelector(state => state.bid);
   const navigation = useNavigation(); // Add this line4
   const [step, setStep] = useState(1);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [address, setAddress] = useState('');
   const [area, setArea] = useState('');
+
+  const [selectedImageFiles, setSelectedImageFiles] = useState([]);
 
   const [addBidData, setAddBidData] = useState(null);
   const [currentSectionId, setCurrentSectionId] = useState('');
@@ -126,7 +130,7 @@ const AddBid = ({route}) => {
   // Main Render
   return (
     <SafeAreaView style={styles.container}>
-      {isAddBidLoading && <ActivityIndicatorModal />}
+      {(isAddBidLoading || isUploadLoading) && <ActivityIndicatorModal />}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => {
@@ -146,7 +150,7 @@ const AddBid = ({route}) => {
       </View>
 
       <View style={styles.stepIndicator}>
-        {[1, 2, 3, 4, 5, 6].map(item => (
+        {[1, 2, 3, 4, 5, 6, 7].map(item => (
           <View
             key={item}
             style={[styles.stepCircle, step >= item && styles.activeStep]}>
@@ -164,6 +168,12 @@ const AddBid = ({route}) => {
       <View style={styles.content}>
         {/* {renderStepContent()} */}
         {step === 1 ? (
+          <UploadBidImages
+            handleData={handleData}
+            selectedImageFiles={selectedImageFiles}
+            setSelectedImageFiles={setSelectedImageFiles}
+          />
+        ) : step === 2 ? (
           <BidInformation
             selectedProperty={selectedProperty}
             setSelectedProperty={setSelectedProperty}
@@ -173,32 +183,32 @@ const AddBid = ({route}) => {
             setArea={setArea}
             handleData={handleData}
           />
-        ) : step === 2 ? (
+        ) : step === 3 ? (
           <BidItemStepPlumbing
             handleData={handleData}
             setCurrentSectionId={setCurrentSectionId}
             setCurrentSection={setCurrentSection}
           />
-        ) : step === 3 ? (
+        ) : step === 4 ? (
           <BidItemStepHVAC
             handleData={handleData}
             setCurrentSectionId={setCurrentSectionId}
             setCurrentSection={setCurrentSection}
           />
-        ) : step === 4 ? (
+        ) : step === 5 ? (
           <BidItemStepElectric
             handleData={handleData}
             setCurrentSectionId={setCurrentSectionId}
             setCurrentSection={setCurrentSection}
           />
-        ) : step === 5 ? (
+        ) : step === 6 ? (
           <BidItemStepGeneral
             handleData={handleData}
             setCurrentSectionId={setCurrentSectionId}
             setCurrentSection={setCurrentSection}
           />
         ) : (
-          step === 6 && (
+          step === 7 && (
             <BidItemStepMiscWork
               handleData={handleData}
               setCurrentSectionId={setCurrentSectionId}
@@ -210,7 +220,7 @@ const AddBid = ({route}) => {
       {/* </KeyboardAwareScrollView> */}
       {/* </ScrollView> */}
 
-      {step !== 1 && (
+      {step !== 1 && step !== 2 && (
         <View style={{marginHorizontal: 10}}>
           <TouchableOpacity
             onPress={() =>
@@ -272,10 +282,16 @@ const AddBid = ({route}) => {
         <TouchableOpacity
           style={[isLoading ? styles.disabledButton : styles?.button]}
           onPress={
-            step === 6
+            step === 7
               ? handleSubmit
               : () =>
-                  step === 1 && (!area || !address || !selectedProperty)
+                  step === 1 && selectedImageFiles.length < 1
+                    ? Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: 'Please select atleast one image',
+                      })
+                    : step === 2 && (!area || !address || !selectedProperty)
                     ? Toast.show({
                         type: 'error',
                         text1: 'Error',
@@ -285,7 +301,7 @@ const AddBid = ({route}) => {
           }
           disabled={isLoading}>
           <Text style={styles.buttonText}>
-            {step === 6 ? 'Submit' : 'Next'}
+            {step === 7 ? 'Submit' : 'Next'}
           </Text>
         </TouchableOpacity>
       </View>

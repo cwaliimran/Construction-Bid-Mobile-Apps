@@ -579,5 +579,50 @@ const styles = StyleSheet.create({
     height: 22,
     resizeMode: 'contain',
   },
+  img_container: {
+    borderWidth: 1,
+    //paddingVertical: 0,
+    borderColor: colors.border,
+    borderRadius: 10,
+    borderStyle: 'dashed',
+    backgroundColor: colors.border,
+  },
+  img_upload: {
+    width: 109,
+    height: 109,
+    alignSelf: 'center',
+    resizeMode: 'contain',
+  },
+  house: {
+    fontSize: 12,
+    fontFamily: fonts.Medium,
+    color: colors.black,
+  },
+  status: {
+    fontSize: 12,
+    fontFamily: fonts.Regular,
+    color: colors.grey,
+  },
+  status_container: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    gap: 6,
+  },
+  parent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+    backgroundColor: colors.border,
+    padding: 10,
+    borderRadius: 10,
+  },
+  child: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 8,
+  },
 });
 export default styles;

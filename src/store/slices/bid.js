@@ -94,8 +94,6 @@ const slice = createSlice({
     setUpdateBidPropertySection(state, action) {
       const updatedItem = action.payload;
 
-      console.log('updatedItem payload --------->', updatedItem);
-
       if (!state.bid?.sections || !state.bid.sections[updatedItem.sectionId])
         return;
 
@@ -117,6 +115,26 @@ const slice = createSlice({
             propertyName:
               updatedItem.propertyName ??
               state.bid.sections[updatedItem.sectionId].propertyName,
+          },
+        },
+      };
+    },
+
+    setUpdateBidImages(state, action) {
+      const updatedItem = action.payload;
+
+      if (!state.bid?.sections || !state.bid.sections[updatedItem.sectionId])
+        return;
+
+      state.bid = {
+        ...state.bid,
+        sections: {
+          ...state.bid.sections,
+          [updatedItem.sectionId]: {
+            ...state.bid.sections[updatedItem.sectionId], // Preserve other properties
+            images:
+              updatedItem.images ??
+              state.bid.sections[updatedItem.sectionId].images,
           },
         },
       };
@@ -366,7 +384,6 @@ export const addBid = payload => async dispatch => {
 };
 
 export const updateBid = payload => async dispatch => {
-  console.log('payload -------->', payload);
   dispatch(actions.setIsAddBidLoading(true));
   try {
     const response = await putRequest({
@@ -404,7 +421,6 @@ export const updateItem = payload => async dispatch => {
       endpoint: `${API_ENDPOINTS.bid.updateItem}`,
       payload: payload,
     });
-    console.log('ress -------->', response?.data);
     dispatch(actions.setIsLoading(false));
     dispatch(actions.setUpdateBid(response?.data?.itemInformation));
     return response;
@@ -440,3 +456,9 @@ export const emptyAddItem = () => async dispatch => {
 export const setUpdateBidPropertySection = payload => async dispatch => {
   dispatch(actions.setUpdateBidPropertySection(payload));
 };
+
+export const setUpdateBidImages = payload => async dispatch => {
+  dispatch(actions.setUpdateBidImages(payload));
+};
+
+// setUpdateBidImages

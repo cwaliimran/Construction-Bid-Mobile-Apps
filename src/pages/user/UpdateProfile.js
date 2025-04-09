@@ -47,7 +47,6 @@ const UpdateProfile = ({navigation}) => {
 
   const {isLoading, user} = useSelector(state => state.auth);
 
-  console.log('user picture ---------->', user?.profilePicture);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const {isUploadLoading} = useSelector(state => state.file);

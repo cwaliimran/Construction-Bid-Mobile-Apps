@@ -46,8 +46,6 @@ const ViewItem = ({route}) => {
   const navigation = useNavigation();
   const {item, sectionId, sectionName} = route.params;
 
-  console.log('item?.completionStatus ------>', item?.completionStatus);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -57,8 +55,6 @@ const ViewItem = ({route}) => {
   const handleBack = () => {
     navigation.goBack();
   };
-
-  console.log('isEditing -------->', isEditing);
 
   const handleEdit = (values, {resetForm}) => {
     Keyboard.dismiss();
@@ -74,17 +70,13 @@ const ViewItem = ({route}) => {
       completionStatus: values.completionStatus,
     };
 
-    console.log('1 ------->');
-
     dispatch(updateItem(data))
       .then(response => {
-        console.log('2');
         setShowSuccessModal(true);
         setIsEditing(!isEditing);
         resetForm();
       })
       .catch(error => {
-        console.log('err ------->', error);
         Toast.show({
           type: 'error',
           text1: 'Error',

@@ -17,6 +17,7 @@ import {
   getBid,
   getBidPropertyType,
   getSections,
+  setUpdateBidImages,
   setUpdateBidPropertySection,
   updateBid,
 } from '../../../store/slices/bid';
@@ -27,6 +28,7 @@ import ChevronIcon from 'react-native-vector-icons/Feather';
 import {Dropdown} from 'react-native-element-dropdown';
 import Toast from 'react-native-toast-message';
 import ActivityIndicatorModal from '../../../components/modal/ActivityIndicatorModal';
+import UpdateBidImages from '../../../components/updateBid/UpdateBidImages';
 
 const InitialData = INITIAL_ITEMS;
 
@@ -35,6 +37,7 @@ const ViewBid = ({route}) => {
   const navigation = useNavigation();
   const {bidId} = route.params;
 
+  const {isUploadLoading} = useSelector(state => state.file);
   const {isLoading, isAddBidLoading, bid} = useSelector(state => state.bid);
 
   const [stepDetails, setStepDetails] = useState(null);
@@ -49,10 +52,6 @@ const ViewBid = ({route}) => {
   const [items, setItems] = useState(null);
   const [propertySection, setPropertySections] = useState(null);
 
-  console.log('propertySection ------->', propertySection);
-
-  console.log('items ------->', items);
-
   const [propertyOptions, setPropertyOptions] = useState([]);
 
   const [selectedProperty, setSelectedProperty] = useState({});
@@ -62,10 +61,7 @@ const ViewBid = ({route}) => {
   const [address, setAddress] = useState('');
   const [area, setArea] = useState('');
 
-  console.log('selectedProperty ------->', selectedProperty);
-  console.log('propertyOptions -------->', propertyOptions);
-  console.log('bid ------->', bid);
-  console.log('stepDetails ------->', stepDetails);
+  const [selectedImageFiles, setSelectedImageFiles] = useState([]);
 
   const renderItem = () => (
     <ChevronIcon
@@ -102,6 +98,12 @@ const ViewBid = ({route}) => {
       setFinalCost(
         bid?.totalProjectCost +
           (bid?.totalProjectCost * bid?.markupPercentage) / 100,
+      );
+
+      setSelectedImageFiles(
+        Object?.fromEntries(
+          Object?.entries(bid?.sections)?.filter(([key]) => key === 'images'),
+        ),
       );
     }
   }, [bid]);
@@ -159,8 +161,6 @@ const ViewBid = ({route}) => {
 
   const handleUpdate = () => {
     // navigation.navigate('UpdateBid', {bid});
-
-    console.log('bid ------->', bid);
 
     dispatch(updateBid(bid))
       .then(response => {
@@ -296,9 +296,6 @@ const ViewBid = ({route}) => {
 
     const currentItems = renderStepItems();
 
-    console.log('renderStepItems ------>', renderStepItems());
-    console.log('currentItems ------>', currentItems);
-
     return (
       <>
         <Text style={styles.sectionTitle}>{currentItems?.sectionName}</Text>
@@ -411,14 +408,24 @@ const ViewBid = ({route}) => {
 
   const renderStepContent = () => {
     if (currentStep === 1) {
+      return (
+        <UpdateBidImages
+          selectedImageFiles={selectedImageFiles}
+          setSelectedImageFiles={setSelectedImageFiles}
+        />
+      );
+    }
+
+    if (currentStep === 2) {
       return renderBidInformation();
     }
+
     return renderStepItems();
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {isAddBidLoading && <ActivityIndicatorModal />}
+      {(isAddBidLoading || isUploadLoading) && <ActivityIndicatorModal />}
       <View style={styles.header}>
         <TouchableOpacity onPress={goToHomePage} style={styles.backButton}>
           <Image
@@ -433,7 +440,7 @@ const ViewBid = ({route}) => {
       </View>
 
       <View style={styles.stepIndicator}>
-        {[1, 2, 3, 4, 5, 6].map(item => (
+        {[1, 2, 3, 4, 5, , 6, 7].map(item => (
           <View
             key={item}
             style={[
@@ -448,7 +455,7 @@ const ViewBid = ({route}) => {
         {isLoading ? <ActivityIndicator /> : renderStepContent()}
       </ScrollView>
       <View style={{marginHorizontal: 10, marginTop: 10}}>
-        {currentStep !== 1 && renderCostSummary()}
+        {currentStep !== 1 && currentStep !== 2 && renderCostSummary()}
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -466,10 +473,18 @@ const ViewBid = ({route}) => {
         <TouchableOpacity
           style={isLoading ? styles.disabledButton : styles.button}
           onPress={
-            currentStep === 6
+            currentStep === 7
               ? handleUpdate
               : () => {
                   currentStep === 1 &&
+                    dispatch(
+                      setUpdateBidImages({
+                        sectionId: 'images',
+                        sectionName: 'images',
+                        images: selectedImageFiles?.images?.images,
+                      }),
+                    );
+                  currentStep === 2 &&
                     dispatch(
                       setUpdateBidPropertySection({
                         sectionId:
@@ -487,7 +502,7 @@ const ViewBid = ({route}) => {
           }
           disabled={isLoading}>
           <Text style={styles.buttonText}>
-            {currentStep === 6 ? 'Update' : 'Next'}
+            {currentStep === 7 ? 'Update' : 'Next'}
           </Text>
         </TouchableOpacity>
       </View>

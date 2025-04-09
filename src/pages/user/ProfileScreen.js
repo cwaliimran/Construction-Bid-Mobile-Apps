@@ -6,12 +6,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  TextInput,
-  Platform,
-  Keyboard,
-  ActionSheetIOS,
-  Alert,
-  PermissionsAndroid,
+  
 } from 'react-native';
 import styles from './styles';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';

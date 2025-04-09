@@ -9,6 +9,7 @@ export const colors = {
   blue: '#0060CE',
   success: '#43E804',
   error: '#FF9797',
+  border:"#E0E0E0"
 };
 
 // Define common font sizes
