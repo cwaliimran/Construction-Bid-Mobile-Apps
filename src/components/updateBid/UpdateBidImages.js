@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {
   Image,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -244,8 +245,7 @@ const UpdateBidImages = ({selectedImageFiles, setSelectedImageFiles}) => {
         visible={imagePreviewVisible}
         onRequestClose={() => setImagePreviewVisible(false)}
       />
-
-      <Text style={styles.sectionTitle}>Images</Text>
+      {/* <Text style={styles.sectionTitle}>Images</Text> */}
       <View style={styles.img_container}>
         <TouchableOpacity onPress={showActionSheet}>
           {selectedImageFiles || user?.profilePicture ? (
@@ -272,22 +272,26 @@ const UpdateBidImages = ({selectedImageFiles, setSelectedImageFiles}) => {
           ]}>
           Upload Images
         </Text>
-        <ActionSheet
-          ref={actionSheetRef}
-          title={'Select an option'}
-          options={options}
-          cancelButtonIndex={2}
-          onPress={index => {
-            if (index === 0) {
-              handleCameraClick();
-            } else if (index === 1) {
-              handlePhotosClick();
-            }
-          }}
-        />
       </View>
+      {/* <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{flexGrow: 1, paddingBottom: 20}}> */}
       {selectedImageFiles?.images?.images &&
         selectedImageFiles.images.images.map(file => <ItemList file={file} />)}
+      {/* </ScrollView> */}
+      <ActionSheet
+        ref={actionSheetRef}
+        title={'Select an option'}
+        options={options}
+        cancelButtonIndex={2}
+        onPress={index => {
+          if (index === 0) {
+            handleCameraClick();
+          } else if (index === 1) {
+            handlePhotosClick();
+          }
+        }}
+      />
     </>
   );
 };

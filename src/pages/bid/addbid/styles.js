@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {widthPercentageToDP as WP} from 'react-native-responsive-screen';
 import {colors, fonts, fontSizes} from '../../../utls/styles';
 
 const styles = StyleSheet.create({
@@ -9,6 +10,22 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
+  },
+  centeredView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: WP('80'),
+  },
+  modalContainer: {
+    alignItems: 'center',
+    borderRadius: 30,
+    overflow: 'hidden',
+    width: WP('80'),
+    padding: 20,
+  },
+  modalView: {
+    alignItems: 'center',
+    width: WP('60'),
   },
   deleteModalContent: {
     backgroundColor: 'white',
@@ -284,21 +301,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333333',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Adjust the opacity here if needed
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%', // Ensure it covers the full width
-    height: '100%', // Ensure it covers the full height
-    position: 'absolute', // Ensures it covers the entire screen
-    top: 0,
-    left: 0,
-    zIndex: 99,
-  },
 
   modalContent: {
-    backgroundColor: 'white',
     padding: 22,
     borderRadius: 8,
     width: '80%',
@@ -309,11 +313,14 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   modalInput: {
+    width: '100%',
     borderWidth: 1,
     borderColor: '#E5E5E5',
     borderRadius: 8,
     padding: 12,
     marginBottom: 15,
+    maxHeight: 100,
+    minHeight: 100,
   },
   modalButton: {
     backgroundColor: '#1D75D8',
@@ -335,7 +342,7 @@ const styles = StyleSheet.create({
     borderColor: '#007AFF',
     borderRadius: 10,
     // paddingVertical: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     height: 50,
     // marginTop: 10,
     position: 'relative',
@@ -373,9 +380,6 @@ const styles = StyleSheet.create({
     width: 100,
     textAlign: 'right',
   },
-  addItemText: {
-    color: '#FFF',
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -412,13 +416,13 @@ const styles = StyleSheet.create({
   },
 
   uploadIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 10, // Space between the icon and text
+    width: 20,
+    height: 20,
+    marginRight: 5, // Space between the icon and text
   },
   addItemText: {
     color: '#007AFF', // Text color
-    fontSize: 16,
+    fontSize: 12,
   },
   stepIndicator: {
     flexDirection: 'row',

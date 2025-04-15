@@ -15,9 +15,14 @@ import styles from '../../pages/bid/addbid/styles';
 import Toast from 'react-native-toast-message';
 import AddModal from './AddModal';
 
-const ItemList = ({item, data, setData}) => {
+const ItemList = ({
+  item,
+  data,
+  setData,
+  activeItemActionsId,
+  setActiveItemActionsId,
+}) => {
   const [isChecked, setIsChecked] = useState(item.completionStatus);
-  const [showItemActions, setShowItemActions] = useState(false);
 
   const [modalType, setModalType] = useState('');
   const [modalValue, setModalValue] = useState('');
@@ -29,6 +34,7 @@ const ItemList = ({item, data, setData}) => {
   const [unitCost, setUniotCost] = useState(item.unitCost || 0);
   const [quantity, setQuantity] = useState(item.quantity || 0);
   const totalCost = useMemo(() => unitCost * quantity, [unitCost, quantity]);
+  const showItemActions = activeItemActionsId === item._id;
 
   // useEffect(() => {
   //   const total = unitCost * quantity;
@@ -68,14 +74,14 @@ const ItemList = ({item, data, setData}) => {
   }, []);
 
   const toggleItemActions = useCallback(() => {
-    setShowItemActions(true);
-  }, []);
+    setActiveItemActionsId(prevId => (prevId === item._id ? null : item._id));
+  }, [item._id, activeItemActionsId]);
 
   const openModal = useCallback((type, itemId) => {
     setModalType(type);
     setModalValue(type === 'Brand' ? item.brand : item.hdSku);
     setIsModalVisible(true);
-    setShowItemActions(false);
+    setActiveItemActionsId(null);
   }, []);
 
   const DeleteConfirmationModal = () => {
@@ -142,7 +148,7 @@ const ItemList = ({item, data, setData}) => {
     return (
       <Pressable
         style={styles.menuWrapper}
-        onPress={() => setShowItemActions(false)}>
+        onPress={() => setActiveItemActionsId(null)}>
         <View style={styles.itemActionsMenu}>
           <TouchableOpacity
             style={styles.actionMenuItem}
@@ -167,7 +173,7 @@ const ItemList = ({item, data, setData}) => {
             onPress={() => {
               // setSelectedItemId(item.id);
               setIsDeleteModalVisible(true);
-              setShowItemActions(false);
+              setActiveItemActionsId(null);
             }}>
             <Image
               source={require('../../../assets/icons/delete-icon-popup.png')}
@@ -185,7 +191,7 @@ const ItemList = ({item, data, setData}) => {
       <DeleteConfirmationModal />
       <AddModal
         isModalVisible={isModalVisible}
-        setIsModalVisible={setIsModalVisible}
+        Set_Modal_Visibilty={setIsModalVisible}
         modalType={modalType}
         handleModalSubmit={handleModalSubmit}
         modalValue={modalValue}

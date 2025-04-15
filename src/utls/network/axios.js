@@ -101,10 +101,11 @@ export const API_ENDPOINTS = {
     addItem: 'items/add',
     updateItem: 'items/update',
     getSections: 'sections/all',
+    getSectionSearchItem: 'sectionInfo/all',
   },
   download: {
     bidPdfDownload: 'bids/send_pdf',
-    bidPdfSend: 'bids/send_pdf',
+    bidPdfSend: 'bids/send_email',
   },
   upload: {
     file: 'file/upload',

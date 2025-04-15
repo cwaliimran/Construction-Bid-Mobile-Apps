@@ -197,9 +197,6 @@ const ViewBid = ({route}) => {
 
   const renderBidInformation = () => (
     <>
-      <Text style={styles.sectionTitle}>Bid Information</Text>
-      <Text style={styles.heading}>Address</Text>
-
       <View style={styles.inputContainer}>
         <Image
           source={require('../../../../assets/icons/location.png')}
@@ -288,17 +285,14 @@ const ViewBid = ({route}) => {
     </>
   );
 
+  const renderCurrentStepItems = () =>
+    items?.[Object.keys(items)?.[currentStep - 2]] || [];
+
+  const currentItems = renderCurrentStepItems();
+
   const renderStepItems = () => {
-    // Get items for current step
-
-    const renderStepItems = () =>
-      items?.[Object.keys(items)?.[currentStep - 2]] || [];
-
-    const currentItems = renderStepItems();
-
     return (
       <>
-        <Text style={styles.sectionTitle}>{currentItems?.sectionName}</Text>
         {currentItems?.items?.length === 0 ? (
           <Text style={styles.noItemsText}>No items found for this step</Text>
         ) : (
@@ -451,7 +445,21 @@ const ViewBid = ({route}) => {
           </View>
         ))}
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+
+      {currentStep === 2 ? (
+        <>
+          <Text style={styles.sectionTitle}>Bid Information</Text>
+          <Text style={[styles.heading, {textAlign: 'center'}]}>Address</Text>
+        </>
+      ) : (
+        <Text style={styles.sectionTitle}>
+          {currentStep === 1 ? 'Images' : currentItems?.sectionName}
+        </Text>
+      )}
+
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}>
         {isLoading ? <ActivityIndicator /> : renderStepContent()}
       </ScrollView>
       <View style={{marginHorizontal: 10, marginTop: 10}}>

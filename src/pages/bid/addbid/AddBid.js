@@ -58,7 +58,15 @@ const AddBid = ({route}) => {
   const [address, setAddress] = useState('');
   const [area, setArea] = useState('');
 
-  const [selectedImageFiles, setSelectedImageFiles] = useState([]);
+  const [activeItemActionsId, setActiveItemActionsId] = useState(null);
+
+  const [selectedImageFiles, setSelectedImageFiles] = useState([
+    // {
+    //   fileUrl:
+    //     'https://construction-bid-sb.s3.us-east-2.amazonaws.com/1744712378.jpg',
+    //   fileName: '1744712378.jpg',
+    // },
+  ]);
 
   const [addBidData, setAddBidData] = useState(null);
   const [currentSectionId, setCurrentSectionId] = useState('');
@@ -188,24 +196,32 @@ const AddBid = ({route}) => {
             handleData={handleData}
             setCurrentSectionId={setCurrentSectionId}
             setCurrentSection={setCurrentSection}
+            activeItemActionsId={activeItemActionsId}
+            setActiveItemActionsId={setActiveItemActionsId}
           />
         ) : step === 4 ? (
           <BidItemStepHVAC
             handleData={handleData}
             setCurrentSectionId={setCurrentSectionId}
             setCurrentSection={setCurrentSection}
+            activeItemActionsId={activeItemActionsId}
+            setActiveItemActionsId={setActiveItemActionsId}
           />
         ) : step === 5 ? (
           <BidItemStepElectric
             handleData={handleData}
             setCurrentSectionId={setCurrentSectionId}
             setCurrentSection={setCurrentSection}
+            activeItemActionsId={activeItemActionsId}
+            setActiveItemActionsId={setActiveItemActionsId}
           />
         ) : step === 6 ? (
           <BidItemStepGeneral
             handleData={handleData}
             setCurrentSectionId={setCurrentSectionId}
             setCurrentSection={setCurrentSection}
+            activeItemActionsId={activeItemActionsId}
+            setActiveItemActionsId={setActiveItemActionsId}
           />
         ) : (
           step === 7 && (
@@ -213,6 +229,8 @@ const AddBid = ({route}) => {
               handleData={handleData}
               setCurrentSectionId={setCurrentSectionId}
               setCurrentSection={setCurrentSection}
+              activeItemActionsId={activeItemActionsId}
+              setActiveItemActionsId={setActiveItemActionsId}
             />
           )
         )}
@@ -222,22 +240,6 @@ const AddBid = ({route}) => {
 
       {step !== 1 && step !== 2 && (
         <View style={{marginHorizontal: 10}}>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('AddItem', {
-                sectionId: currentSectionId,
-                currentSection: currentSection,
-              })
-            }
-            style={styles.addItemButton}
-            disabled={isLoading}>
-            <View style={styles.leftIndicatorBlue}></View>
-            <Image
-              source={require('../../../../assets/icons/upload.png')}
-              style={styles.uploadIcon}
-            />
-            <Text style={styles.addItemText}>Add Item</Text>
-          </TouchableOpacity>
           <View style={styles.costContainer}>
             <View style={styles.leftIndicatorBlue}></View>
             <View style={styles.costRow}>
@@ -279,13 +281,31 @@ const AddBid = ({route}) => {
             Previous
           </Text>
         </TouchableOpacity>
+        {step !== 1 && step !== 2 && (
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('AddItem', {
+                sectionId: currentSectionId,
+                currentSection: currentSection,
+              })
+            }
+            style={styles.addItemButton}
+            disabled={isLoading}>
+            {/* <View style={styles.leftIndicatorBlue}></View> */}
+            <Image
+              source={require('../../../../assets/icons/upload.png')}
+              style={styles.uploadIcon}
+            />
+            <Text style={styles.addItemText}>Add Item</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={[isLoading ? styles.disabledButton : styles?.button]}
           onPress={
             step === 7
               ? handleSubmit
               : () =>
-                  step === 1 && selectedImageFiles.length < 1
+                  step === 1 && selectedImageFiles?.length < 1
                     ? Toast.show({
                         type: 'error',
                         text1: 'Error',

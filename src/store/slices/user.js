@@ -5,6 +5,7 @@ import {getRequest, postRequest, putRequest} from '../../utls/network/request';
 const initialState = {
   isLoading: false,
   user: null,
+  globalEmail: '',
 };
 
 const slice = createSlice({
@@ -17,6 +18,10 @@ const slice = createSlice({
 
     setUserData(state, action) {
       state.user = action.payload;
+    },
+
+    setGlobalEmail(state, action) {
+      state.globalEmail = action.payload;
     },
   },
 });
@@ -68,7 +73,6 @@ export const updateProfile = payload => async dispatch => {
     dispatch(actions.setIsLoading(false));
     return response;
   } catch (error) {
-    
     dispatch(actions.setIsLoading(false));
     throw error;
   }
@@ -87,4 +91,8 @@ export const changePassword = payload => async dispatch => {
     dispatch(actions.setIsLoading(false));
     throw error;
   }
+};
+
+export const setGlobalEmail = payload => async dispatch => {
+  dispatch(actions.setGlobalEmail(payload));
 };

@@ -445,6 +445,18 @@ export const bidSendEmail = payload => async dispatch => {
   }
 };
 
+export const getSectionSearchItem =
+  (value, sectionId, search) => async dispatch => {
+    try {
+      const response = await getRequest({
+        endpoint: `${API_ENDPOINTS.bid.getSectionSearchItem}?default=${value}&sectionId=${sectionId}&search=${search}`,
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
+
 export const deleteItem = id => async dispatch => {
   dispatch(actions.setRemoveBidItem(id));
 };

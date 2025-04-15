@@ -29,6 +29,8 @@ const BidItemStepElectric = ({
   handleData,
   setCurrentSectionId,
   setCurrentSection,
+  activeItemActionsId,
+  setActiveItemActionsId,
 }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -37,7 +39,6 @@ const BidItemStepElectric = ({
   );
   const [data, setData] = useState([]);
   const [sectionId, setSectionId] = useState('');
-
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
 
@@ -163,7 +164,13 @@ const BidItemStepElectric = ({
           <FlatList
             data={data}
             renderItem={({item}) => (
-              <ItemList item={item} data={data} setData={setData} />
+              <ItemList
+                item={item}
+                data={data}
+                setData={setData}
+                activeItemActionsId={activeItemActionsId}
+                setActiveItemActionsId={setActiveItemActionsId}
+              />
             )}
             keyExtractor={item => item._id}
             // showsVerticalScrollIndicator={false}

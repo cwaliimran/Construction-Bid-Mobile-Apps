@@ -94,9 +94,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   iconWrapper: {
-    padding: 10,
+    paddingLeft: 5,
     borderRadius: 8,
-    marginRight: 15,
+    marginRight: 10,
   },
   icon: {
     width: 40,
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   editButton: {
-    padding: 10,
+    paddingLeft: 10,
     borderRadius: 8,
   },
   editIcon: {

@@ -7,7 +7,7 @@ import {
   TextInput,
   Pressable,
   Modal,
-  FlatList
+  FlatList,
 } from 'react-native';
 
 // Styles
@@ -23,12 +23,14 @@ import {getBidHVACItem} from '../../store/slices/bid';
 import ActivityIndicator from '../modal/ActivityIndicator';
 import ItemList from './ItemList';
 import Toast from 'react-native-toast-message';
-import { colors } from '../../utls/styles';
+import {colors} from '../../utls/styles';
 
 const BidItemStepHVAC = ({
   handleData,
   setCurrentSectionId,
   setCurrentSection,
+  activeItemActionsId,
+  setActiveItemActionsId,
 }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -37,7 +39,6 @@ const BidItemStepHVAC = ({
   );
   const [data, setData] = useState([]);
   const [sectionId, setSectionId] = useState('');
-
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
 
@@ -164,7 +165,13 @@ const BidItemStepHVAC = ({
           <FlatList
             data={data}
             renderItem={({item}) => (
-              <ItemList item={item} data={data} setData={setData} />
+              <ItemList
+                item={item}
+                data={data}
+                setData={setData}
+                activeItemActionsId={activeItemActionsId}
+                setActiveItemActionsId={setActiveItemActionsId}
+              />
             )}
             keyExtractor={item => item._id}
             // showsVerticalScrollIndicator={false}

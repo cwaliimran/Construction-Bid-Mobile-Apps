@@ -166,6 +166,37 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
+  img: {
+    width: 22,
+    height: 22,
+    resizeMode: 'contain',
+  },
+  suggestionsContainer: {
+    position: 'absolute',
+    top: 130,
+    right: 15,
+    left: 15,
+    height: 250,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 5,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 999,
+  },
+  suggestion: {
+    paddingVertical: 5,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });
 
 export default styles;

@@ -267,42 +267,53 @@ const Home = ({navigation}) => {
 
     return (
       <Swipeable renderRightActions={renderRightActions}>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('ViewBid', {
-              bidId: item.id,
-            })
-          }>
-          <View style={styles.bidContainer}>
-            <View style={styles.greenBar}></View>
-            <View style={styles.bidContent}>
-              <View style={styles.numberWrapper}>
-                <Text style={styles.numberText}>
-                  {' '}
-                  {String(index + 1).padStart(2, '0')}
-                </Text>
-              </View>
-              <View style={styles.iconWrapper}>
-                <Image
-                  source={require('../../../assets/icons/pdf.png')}
-                  style={styles.icon}
-                />
-              </View>
-              <View style={styles.textWrapper}>
-                <Text style={styles.bidTitle}>{item.address}</Text>
-                <Text style={styles.bidDate}>
-                  Created {moment(item.createdAt).format('DD MMM YYYY')}
-                </Text>
-              </View>
+        <View style={styles.bidContainer}>
+          <View style={styles.greenBar}></View>
+          <View style={styles.bidContent}>
+            <View style={styles.numberWrapper}>
+              <Text style={styles.numberText}>
+                {' '}
+                {String(index + 1).padStart(2, '0')}
+              </Text>
             </View>
-            <View style={styles.editButton}>
+            <View style={styles.iconWrapper}>
               <Image
-                source={require('../../../assets/icons/edit.png')}
-                style={styles.editIcon}
+                source={require('../../../assets/icons/pdf.png')}
+                style={styles.icon}
               />
             </View>
+            <View style={styles.textWrapper}>
+              <Text style={styles.bidTitle}>{item.address}</Text>
+              <Text style={styles.bidDate}>
+                Created {moment(item.createdAt).format('DD MMM YYYY')}
+              </Text>
+            </View>
           </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() =>
+              navigation.navigate('ViewBid', {
+                bidId: item.id,
+              })
+            }>
+            <Image
+              source={require('../../../assets/icons/edit.png')}
+              style={styles.editIcon}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() =>
+              navigation.navigate('SubmitBid', {
+                bidId: item.id,
+              })
+            }>
+            <Image
+              source={require('../../../assets/icons/more.png')}
+              style={styles.editIcon}
+            />
+          </TouchableOpacity>
+        </View>
       </Swipeable>
     );
   };
