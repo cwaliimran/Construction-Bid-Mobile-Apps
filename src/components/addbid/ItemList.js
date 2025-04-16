@@ -187,7 +187,7 @@ const ItemList = ({
   };
 
   return (
-    <View key={item._id} style={styles.itemContainer}>
+    <View>
       <DeleteConfirmationModal />
       <AddModal
         isModalVisible={isModalVisible}
@@ -197,96 +197,98 @@ const ItemList = ({
         modalValue={modalValue}
         setModalValue={setModalValue}
       />
-      <View style={styles.leftIndicator}></View>
-      
-      <View style={styles.itemDetails}>
-        <View>
-          <Text style={styles.itemName}>{item.itemName}</Text>
-          {(item.hdSku || item.brand) && (
-            <Text style={styles.itemSubtext}>
-              {item.hdSku && `HD SKU: ${item.hdSku}`}{' '}
-              {item.brand && `Brand: ${item.brand}`}
-            </Text>
-          )}
-        </View>
-        <View style={styles.actions}>
-          <TouchableOpacity onPress={toggleCheck} style={styles.actionButton}>
-            <Image
-              source={
-                isChecked
-                  ? require('../../../assets/icons/check.png')
-                  : require('../../../assets/icons/uncheck.png')
-              }
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={toggleItemActions}
-            style={styles.actionButton}>
-            <Image
-              source={require('../../../assets/icons/more.png')}
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
       {showItemActions && <ItemActions item={item} />}
+      <View key={item._id} style={styles.itemContainer}>
+        <View style={styles.leftIndicator}></View>
 
-      <View style={styles.inputsContainer}>
-        <TextInput
-          style={styles.textinput}
-          placeholder="Unit cost"
-          placeholderTextColor="#CCCCCC"
-          value={String(unitCost)}
-          onChangeText={text => {
-            const updatedUnitCost = Number(text);
-            setUniotCost(updatedUnitCost);
-            setData(prevData =>
-              prevData.map(d =>
-                d._id === item._id
-                  ? {
-                      ...d,
-                      unitCost: updatedUnitCost,
-                      totalCost: updatedUnitCost * d.quantity,
-                    }
-                  : d,
-              ),
-            );
-          }}
-          keyboardType="numeric"
-        />
+        <View style={styles.itemDetails}>
+          <View>
+            <Text style={styles.itemName}>{item.itemName}</Text>
+            {(item.hdSku || item.brand) && (
+              <Text style={styles.itemSubtext}>
+                {item.hdSku && `HD SKU: ${item.hdSku}`}{' '}
+                {item.brand && `Brand: ${item.brand}`}
+              </Text>
+            )}
+          </View>
+          <View style={styles.actions}>
+            <TouchableOpacity onPress={toggleCheck} style={styles.actionButton}>
+              <Image
+                source={
+                  isChecked
+                    ? require('../../../assets/icons/check.png')
+                    : require('../../../assets/icons/uncheck.png')
+                }
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={toggleItemActions}
+              style={styles.actionButton}>
+              <Image
+                source={require('../../../assets/icons/more.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-        <TextInput
-          style={styles.textinput}
-          placeholder="Quantity"
-          keyboardType="numeric"
-          value={String(quantity)}
-          onChangeText={text => {
-            const updatedQuantity = Number(text);
-            setQuantity(updatedQuantity);
-            setData(prevData =>
-              prevData.map(d =>
-                d._id === item._id
-                  ? {
-                      ...d,
-                      unitCost: updatedQuantity,
-                      totalCost: updatedQuantity * d.unitCost,
-                    }
-                  : d,
-              ),
-            );
-          }}
-        />
-        {/* <Text style={styles.textinput}>{totalCost}</Text> */}
-        <TextInput
-          style={styles.textinput}
-          placeholder="Total"
-          value={String(totalCost)}
-          keyboardType="numeric"
-          editable={false} // Make it non-editable
-        />
+        <View style={styles.inputsContainer}>
+          <TextInput
+            style={styles.textinput}
+            placeholder="Unit cost"
+            placeholderTextColor="#CCCCCC"
+            value={String(unitCost)}
+            onChangeText={text => {
+              const updatedUnitCost = Number(text);
+              setUniotCost(updatedUnitCost);
+              setData(prevData =>
+                prevData.map(d =>
+                  d._id === item._id
+                    ? {
+                        ...d,
+                        unitCost: updatedUnitCost,
+                        totalCost: updatedUnitCost * d.quantity,
+                      }
+                    : d,
+                ),
+              );
+            }}
+            keyboardType="numeric"
+          />
+
+          <TextInput
+            style={styles.textinput}
+            placeholder="Quantity"
+            keyboardType="numeric"
+            value={String(quantity)}
+            onChangeText={text => {
+              const updatedQuantity = Number(text);
+              setQuantity(updatedQuantity);
+              setData(prevData =>
+                prevData.map(d =>
+                  d._id === item._id
+                    ? {
+                        ...d,
+                        unitCost: updatedQuantity,
+                        totalCost: updatedQuantity * d.unitCost,
+                      }
+                    : d,
+                ),
+              );
+            }}
+          />
+          {/* <Text style={styles.textinput}>{totalCost}</Text> */}
+          <TextInput
+            style={styles.textinput}
+            placeholder="Total"
+            value={String(totalCost)}
+            keyboardType="numeric"
+            editable={false} // Make it non-editable
+          />
+        </View>
+        {/* <CostSummary totalProjectCost={totalProjectCost} /> */}
       </View>
-      {/* <CostSummary totalProjectCost={totalProjectCost} /> */}
     </View>
   );
 };
