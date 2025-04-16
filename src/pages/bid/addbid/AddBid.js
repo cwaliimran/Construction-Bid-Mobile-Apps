@@ -309,7 +309,7 @@ const AddBid = ({route}) => {
                     ? Toast.show({
                         type: 'error',
                         text1: 'Error',
-                        text2: 'Please select atleast one image',
+                        text2: 'Please upload atleast one image',
                       })
                     : step === 2 && (!area || !address || !selectedProperty)
                     ? Toast.show({

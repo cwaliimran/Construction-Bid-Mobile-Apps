@@ -124,37 +124,39 @@ const ViewBid = ({route}) => {
     }
   }, [propertySection]);
 
-  useEffect(async () => {
-    await dispatch(getBid(bidId))
-      .then(response => {})
-      .catch(error => {});
+  useEffect(() => {
+    const fetchData = async () => {
+      await dispatch(getBid(bidId));
 
-    await dispatch(getSections())
-      .then(response => {
-        const transformed = response?.data?.sections
-          ?.slice(1)
-          ?.reduce((acc, item, index) => {
-            acc[item?._id] = {
-              title:
-                item.name === 'Miscellaneous Work' ? 'Misc. Work' : item.name,
-            };
-            return acc;
-          }, {});
+      await dispatch(getSections())
+        .then(response => {
+          const transformed = response?.data?.sections
+            ?.slice(1)
+            ?.reduce((acc, item, index) => {
+              acc[item?._id] = {
+                title:
+                  item.name === 'Miscellaneous Work' ? 'Misc. Work' : item.name,
+              };
+              return acc;
+            }, {});
 
-        setStepDetails(transformed);
-      })
-      .catch(error => {});
-    await dispatch(getBidPropertyType())
-      .then(response => {
-        setPropertyOptions(response?.data?.properties);
-      })
-      .catch(error => {
-        Toast.show({
-          type: 'error',
-          text1: 'Error',
-          text2: error?.response?.data?.error || 'Something went wrong',
+          setStepDetails(transformed);
+        })
+        .catch(error => {});
+      await dispatch(getBidPropertyType())
+        .then(response => {
+          setPropertyOptions(response?.data?.properties);
+        })
+        .catch(error => {
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: error?.response?.data?.error || 'Something went wrong',
+          });
         });
-      });
+    };
+
+    fetchData();
   }, []);
 
   const goToHomePage = () => navigation.navigate('Home');

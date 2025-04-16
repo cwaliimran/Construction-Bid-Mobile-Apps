@@ -91,9 +91,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
-    overflow: 'visible', // Changed from 'hidden' to 'visible'
-    position: 'relative', // Added to establish positioning context
-    zIndex: 1, // Ensure proper layering
+    overflow: 'hidden',
+    position: 'relative',
+    zIndex: 1,
   },
   leftIndicator: {
     position: 'absolute',
@@ -161,13 +161,6 @@ const styles = StyleSheet.create({
     color: '#0060CE', // White text for readability
     padding: 5, // Optional for better spacing
     borderRadius: 5, // Optional for rounded corners
-  },
-  costContainer: {
-    marginVertical: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#007AFF',
-    borderRadius: 10,
   },
   costRow: {
     flexDirection: 'row',

@@ -67,12 +67,13 @@ const styles = StyleSheet.create({
   },
   greenBar: {
     width: 8,
-    height: 85,
+    height: 70,
     backgroundColor: '#00FFB7',
     borderRadius: 4,
     position: 'absolute',
     left: 0,
     top: 0,
+    // zIndex: 99,
   },
   bidContent: {
     flexDirection: 'row',

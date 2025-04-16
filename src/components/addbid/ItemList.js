@@ -198,6 +198,7 @@ const ItemList = ({
         setModalValue={setModalValue}
       />
       <View style={styles.leftIndicator}></View>
+      
       <View style={styles.itemDetails}>
         <View>
           <Text style={styles.itemName}>{item.itemName}</Text>
