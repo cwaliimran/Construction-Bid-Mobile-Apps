@@ -34,6 +34,7 @@ import {addBid, emptyAddItem} from '../../../store/slices/bid';
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import UploadBidImages from '../../../components/addbid/UploadBidImages';
+import {colors} from '../../../utls/styles';
 // import RenderCostSummary from '../../../components/addbid/RenderCostSummary';
 // Constants
 
@@ -77,7 +78,7 @@ const AddBid = ({route}) => {
   const [finalCost, setFinalCost] = useState(0);
 
   useEffect(() => {
-    if (!addBidData) return; // Ensure addBidData is not null or undefined
+    if (!addBidData) return;
 
     let totalCost = 0;
 
@@ -107,13 +108,10 @@ const AddBid = ({route}) => {
   };
 
   const handleSubmit = () => {
-    // navigation.navigate('SubmitBid', {bidData});
-
     const data = {
       sections: addBidData,
       markupPercentage: markupPercentage,
     };
-
     dispatch(addBid(data))
       .then(response => {
         navigation.navigate('SubmitBid', {
@@ -299,6 +297,23 @@ const AddBid = ({route}) => {
             <Text style={styles.addItemText}>Add Item</Text>
           </TouchableOpacity>
         )}
+        {step === 7 && (
+          <TouchableOpacity
+            style={[styles?.button, {backgroundColor: colors.success}]}
+            onPress={() => {
+              const data = {
+                sections: addBidData,
+                markupPercentage: markupPercentage,
+                selectedImageFiles: selectedImageFiles,
+                totalProjectCost: totalProjectCost,
+                finalCost: finalCost,
+              };
+              navigation.navigate('PreviewBid', {bidData: data});
+            }}
+            disabled={isLoading}>
+            <Text style={styles.buttonText}>{'Preview'}</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={[isLoading ? styles.disabledButton : styles?.button]}
           onPress={
@@ -315,7 +330,11 @@ const AddBid = ({route}) => {
                     ? Toast.show({
                         type: 'error',
                         text1: 'Error',
-                        text2: 'Please fill all field first',
+                        text2: !area
+                          ? 'Please provide atleast one area value'
+                          : !address
+                          ? 'Please fill up address'
+                          : 'Please select property type',
                       })
                     : setStep(step + 1)
           }

@@ -13,6 +13,7 @@ import ProfileScreen from '../pages/user/ProfileScreen';
 import ResetPassword from '../pages/auth/resetpassword/ResetPassword';
 import {useSelector} from 'react-redux';
 import UpdateProfile from '../pages/user/UpdateProfile';
+import PreviewBid from '../pages/bid/previewbid/PreviewBid';
 
 const Stack = createStackNavigator();
 
@@ -37,6 +38,14 @@ const Route = () => {
         <Stack.Screen name="AddItem" component={AddItem} />
         <Stack.Screen name="ViewBid" component={ViewBid} />
         <Stack.Screen name="EditItem" component={EditItem} />
+        <Stack.Screen
+          name="PreviewBid"
+          component={PreviewBid}
+          options={{
+            title: 'PreviewBid',
+            animation: 'slide_from_bottom',
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

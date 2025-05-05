@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import {widthPercentageToDP as WP} from 'react-native-responsive-screen';
 import {colors, fonts, fontSizes} from '../../../utls/styles';
 
@@ -214,6 +214,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 24,
     height: 24,
+    marginRight: 5,
   },
   checkButton: {
     padding: 10,
@@ -451,7 +452,7 @@ const styles = StyleSheet.create({
     borderColor: '#D3D3D3',
     borderRadius: 10,
     marginBottom: 15,
-    padding: 5,
+    paddingHorizontal: 10,
     height: 50,
     alignSelf: 'center',
     width: '100%',
@@ -459,13 +460,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    paddingHorizontal: 10,
     color: '#000',
-  },
-  icon: {
-    width: 24,
-    height: 24,
-    marginRight: 10,
   },
   picker: {
     flex: 1,
@@ -620,6 +615,34 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     gap: 8,
+  },
+  areaInputsWrapper: {
+    flexDirection: 'column',
+    marginTop: -15,
+  },
+  areaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  arearLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  areaInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#000',
+    borderWidth: 1,
+    borderColor: '#D3D3D3',
+    borderRadius: 10,
+    height: 50,
+    paddingHorizontal: 5,
+  },
+  inputWrapper: {
+    marginRight: 15,
+    width: (Dimensions.get('window').width - 65) / 3,
   },
 });
 export default styles;

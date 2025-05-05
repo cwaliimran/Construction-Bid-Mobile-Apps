@@ -40,8 +40,8 @@ const AddItem = ({route}) => {
   // **🔹 Validation Schema with Yup**
   const validationSchema = Yup.object().shape({
     itemName: Yup.string().required('Item Name is required'),
-    sku: Yup.string().required('SKU is required'),
-    brand: Yup.string().required('Brand is required'),
+    sku: Yup.string(),
+    brand: Yup.string(),
     unitCost: Yup.number()
       .typeError('Unit Cost must be a number')
       .positive('Unit Cost must be positive')

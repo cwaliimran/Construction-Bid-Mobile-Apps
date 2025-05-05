@@ -1,7 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Image, Text, TextInput, View} from 'react-native';
-
-import {Picker} from '@react-native-picker/picker';
+import {Image, ScrollView, Text, TextInput, View} from 'react-native';
 
 // Styles
 import styles from '../../pages/bid/addbid/styles';
@@ -25,6 +23,57 @@ const BidInformation = ({
   setArea,
   handleData,
 }) => {
+  const [areas, setAreas] = useState({
+    livingRoom: '',
+    kitchen: '',
+    diningRoom: '',
+    bathroom: '',
+    bedroom1: '',
+    bedroom2: '',
+    bedroom3: '',
+    bedroom4: '',
+    basement: '',
+    other: '',
+  });
+  const handleChange = (key, value) => {
+    if (/^\d*$/.test(value)) {
+      setAreas(prev => ({...prev, [key]: value}));
+    }
+  };
+  const getTotalArea = () => {
+    return Object.values(areas).reduce(
+      (acc, val) => acc + (parseInt(val) || 0),
+      0,
+    );
+  };
+
+  const renderInput = (label, key) => (
+    <View style={styles.inputWrapper} key={key}>
+      <Text style={styles.arearLabel}>{label}</Text>
+      <TextInput
+        placeholder="0"
+        style={styles.areaInput}
+        placeholderTextColor="#CCCCCC"
+        keyboardType="numeric"
+        value={areas[key]}
+        onChangeText={value => handleChange(key, value)}
+      />
+    </View>
+  );
+
+  const roomLabels = [
+    {label: 'Living Room', key: 'livingRoom'},
+    {label: 'Kitchen', key: 'kitchen'},
+    {label: 'Dining Room', key: 'diningRoom'},
+    {label: 'Bathroom', key: 'bathroom'},
+    {label: 'Bedroom 1', key: 'bedroom1'},
+    {label: 'Bedroom 2', key: 'bedroom2'},
+    {label: 'Bedroom 3', key: 'bedroom3'},
+    {label: 'Bedroom 4', key: 'bedroom4'},
+    {label: 'Basement', key: 'basement'},
+    {label: 'Other', key: 'other'},
+  ];
+
   const dispatch = useDispatch();
   const [propertyOptions, setPropertyOptions] = useState([]);
   const [sectionId, setSectionId] = useState('');
@@ -41,7 +90,7 @@ const BidInformation = ({
   useEffect(() => {
     if (selectedProperty && selectedProperty?._id && area && address) {
       const parentData = {
-        [sectionId]: {
+        ['678b5d9f713248c7aca857be']: {
           address: address,
           propertyId: selectedProperty?._id,
           areaSqft: Number(area),
@@ -66,8 +115,19 @@ const BidInformation = ({
       });
   }, []);
 
+  useEffect(() => {
+    const totalArea = getTotalArea(areas);
+    if (totalArea === 0) {
+      setArea('');
+    } else {
+      setArea(totalArea.toString());
+    }
+  }, [areas]);
+
   return (
-    <>
+    <ScrollView
+      contentContainerStyle={{paddingBottom: 300}}
+      showsVerticalScrollIndicator={false}>
       <Text style={styles.sectionTitle}>Bid Information</Text>
       <Text style={styles.heading}>Address</Text>
       <View style={styles.inputContainer}>
@@ -84,19 +144,35 @@ const BidInformation = ({
         />
       </View>
       <Text style={styles.heading}>Area SQ.FT</Text>
-      <View style={styles.inputContainer}>
+      <View
+        style={[
+          styles.inputContainer,
+          {borderWidth: 0, marginTop: -20, marginLeft: -20},
+        ]}>
         <Image
-          source={require('../../../assets/icons/location.png')}
+          source={require('../../../assets/icons/selection.png')}
           style={styles.icon}
         />
         <TextInput
-          placeholder="Enter Area (sq.ft)"
-          style={styles.input}
+          style={[styles.input, {marginTop: 3, marginLeft: -5}]}
           placeholderTextColor="#CCCCCC"
           keyboardType="numeric"
-          value={area}
-          onChangeText={text => setArea(text)}
+          value={area || '0'}
+          editable={false}
         />
+      </View>
+      <View style={styles.areaInputsWrapper}>
+        {roomLabels.map((room, index) => {
+          if (index % 3 === 0) {
+            return (
+              <View key={index} style={styles.areaRow}>
+                {roomLabels
+                  .slice(index, index + 3)
+                  .map(r => renderInput(r.label, r.key))}
+              </View>
+            );
+          }
+        })}
       </View>
       <Text style={styles.heading}>Property Type</Text>
 
@@ -122,7 +198,7 @@ const BidInformation = ({
           }}
         />
       </View>
-    </>
+    </ScrollView>
   );
 };
 
