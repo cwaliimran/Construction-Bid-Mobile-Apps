@@ -20,28 +20,18 @@ const BidInformation = ({
   address,
   setAddress,
   area,
+  amenitiesAreas,
+  setAmenitiesAreas,
   setArea,
   handleData,
 }) => {
-  const [areas, setAreas] = useState({
-    livingRoom: '',
-    kitchen: '',
-    diningRoom: '',
-    bathroom: '',
-    bedroom1: '',
-    bedroom2: '',
-    bedroom3: '',
-    bedroom4: '',
-    basement: '',
-    other: '',
-  });
   const handleChange = (key, value) => {
     if (/^\d*$/.test(value)) {
-      setAreas(prev => ({...prev, [key]: value}));
+      setAmenitiesAreas(prev => ({...prev, [key]: value}));
     }
   };
   const getTotalArea = () => {
-    return Object.values(areas).reduce(
+    return Object.values(amenitiesAreas).reduce(
       (acc, val) => acc + (parseInt(val) || 0),
       0,
     );
@@ -55,7 +45,7 @@ const BidInformation = ({
         style={styles.areaInput}
         placeholderTextColor="#CCCCCC"
         keyboardType="numeric"
-        value={areas[key]}
+        value={amenitiesAreas[key]}
         onChangeText={value => handleChange(key, value)}
       />
     </View>
@@ -116,13 +106,13 @@ const BidInformation = ({
   }, []);
 
   useEffect(() => {
-    const totalArea = getTotalArea(areas);
+    const totalArea = getTotalArea(amenitiesAreas);
     if (totalArea === 0) {
       setArea('');
     } else {
       setArea(totalArea.toString());
     }
-  }, [areas]);
+  }, [amenitiesAreas]);
 
   return (
     <ScrollView

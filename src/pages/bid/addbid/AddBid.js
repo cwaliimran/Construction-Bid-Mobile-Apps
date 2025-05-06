@@ -57,6 +57,19 @@ const AddBid = ({route}) => {
   const [step, setStep] = useState(1);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [address, setAddress] = useState('');
+
+  const [amenitiesAreas, setAmenitiesAreas] = useState({
+    livingRoom: '',
+    kitchen: '',
+    diningRoom: '',
+    bathroom: '',
+    bedroom1: '',
+    bedroom2: '',
+    bedroom3: '',
+    bedroom4: '',
+    basement: '',
+    other: '',
+  });
   const [area, setArea] = useState('');
 
   const [activeItemActionsId, setActiveItemActionsId] = useState(null);
@@ -145,7 +158,7 @@ const AddBid = ({route}) => {
           }}
           style={styles.backButton}>
           <Image
-            source={require('../../../../assets/icons/back-icon.png')} // Make sure you have an icon for back
+            source={require('../../../../assets/icons/back-icon.png')}
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -186,6 +199,8 @@ const AddBid = ({route}) => {
             address={address}
             setAddress={setAddress}
             area={area}
+            amenitiesAreas={amenitiesAreas}
+            setAmenitiesAreas={setAmenitiesAreas}
             setArea={setArea}
             handleData={handleData}
           />
@@ -251,10 +266,17 @@ const AddBid = ({route}) => {
               <TextInput
                 style={styles.inputPercentage}
                 value={markupPercentage}
-                onChangeText={text => setMarkupPercentage(Number(text))}
+                onChangeText={text => {
+                  let sanitizedText = text.replace(/[^0-9.]/g, '');
+                  const parts = sanitizedText.split('.');
+                  if (parts.length > 2) {
+                    sanitizedText = parts[0] + '.' + parts[1];
+                  }
+                  setMarkupPercentage(sanitizedText);
+                }}
                 keyboardType="numeric"
                 placeholderTextColor="#CCCCCC"
-                placeholder="8.1 %"
+                placeholder="8.1%"
               />
             </View>
             <View style={styles.costRow}>

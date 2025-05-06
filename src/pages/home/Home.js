@@ -76,7 +76,7 @@ const Home = ({navigation}) => {
   // };
 
   const fetchBids = async () => {
-    await dispatch(getBids(page, search));
+    await dispatch(getBids(1, search));
   };
 
   useFocusEffect(
@@ -89,11 +89,6 @@ const Home = ({navigation}) => {
     setPage(1);
     fetchBids();
   }, []);
-
-  useEffect(() => {
-    setPage(1);
-    fetchBids();
-  }, [search]);
 
   // const onRefresh = () => {
   //   fetchBids();
@@ -167,10 +162,10 @@ const Home = ({navigation}) => {
     if (!isMoreLoading && page < totalPages) {
       setIsMoreLoading(true);
       const nextPage = page + 1;
+      setPage(nextPage);
       dispatch(getBids(nextPage, search))
         .then(() => {
           setIsMoreLoading(false);
-          setPage(nextPage);
         })
         .catch(error => {
           setIsMoreLoading(false);
@@ -250,7 +245,7 @@ const Home = ({navigation}) => {
     </Modal>
   );
 
-  const renderBidItem = ({item, index}) => {
+  const Item = ({item, index}) => {
     const renderRightActions = () => (
       <TouchableOpacity
         style={styles.deleteButton}
@@ -383,8 +378,10 @@ const Home = ({navigation}) => {
         />
         {search.length > 0 && (
           <TouchableOpacity
-            onPress={() => {
+            onPress={async () => {
               setSearch('');
+              setPage(1);
+              await dispatch(getBids(1, ''));
             }}>
             <Image
               source={require('../../../assets/icons/cross.png')}
@@ -400,8 +397,8 @@ const Home = ({navigation}) => {
       ) : (
         <FlatList
           data={bids}
-          renderItem={renderBidItem}
-          keyExtractor={item => item.id}
+          renderItem={({item, index}) => <Item item={item} index={index} />}
+          keyExtractor={(item, index) => index.toString()}
           contentContainerStyle={styles.bidsList}
           showsVerticalScrollIndicator={false}
           refreshControl={

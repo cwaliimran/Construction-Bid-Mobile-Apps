@@ -305,7 +305,13 @@ const AddItem = ({route}) => {
                   <Text style={styles.label}>Unit Cost</Text>
                   <TextInput
                     style={styles.input}
-                    onChangeText={handleChange('unitCost')}
+                    onChangeText={text => {
+                      let sanitized = text.replace(/[^0-9.]/g, '');
+                      if ((sanitized.match(/\./g) || []).length > 1) {
+                        sanitized = sanitized.slice(0, -1);
+                      }
+                      handleChange('unitCost')(sanitized);
+                    }}
                     onBlur={handleBlur('unitCost')}
                     value={values.unitCost.toString()}
                     placeholder="Enter unit cost"
@@ -321,7 +327,10 @@ const AddItem = ({route}) => {
                   <Text style={styles.label}>Quantity</Text>
                   <TextInput
                     style={styles.input}
-                    onChangeText={handleChange('quantity')}
+                    onChangeText={text => {
+                      const sanitized = text.replace(/[^0-9]/g, '');
+                      handleChange('quantity')(sanitized);
+                    }}
                     onBlur={handleBlur('quantity')}
                     value={values.quantity.toString()}
                     placeholder="Enter quantity"

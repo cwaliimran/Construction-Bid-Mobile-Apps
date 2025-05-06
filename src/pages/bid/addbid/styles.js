@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   itemContainer: {
-    flexDirection: 'column',
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#ccc',

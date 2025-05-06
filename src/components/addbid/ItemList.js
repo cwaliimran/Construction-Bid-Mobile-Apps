@@ -240,7 +240,12 @@ const ItemList = ({
             placeholderTextColor="#CCCCCC"
             value={String(unitCost)}
             onChangeText={text => {
-              const updatedUnitCost = Number(text);
+              const sanitizedText = text.replace(/[^0-9.]/g, '');
+              const validText =
+                sanitizedText.split('.').length > 2
+                  ? sanitizedText.slice(0, sanitizedText.lastIndexOf('.'))
+                  : sanitizedText;
+              const updatedUnitCost = Number(validText);
               setUniotCost(updatedUnitCost);
               setData(prevData =>
                 prevData.map(d =>
@@ -263,7 +268,8 @@ const ItemList = ({
             keyboardType="numeric"
             value={String(quantity)}
             onChangeText={text => {
-              const updatedQuantity = Number(text);
+              const sanitized = text.replace(/[^0-9]/g, '');
+              const updatedQuantity = Number(sanitized);
               setQuantity(updatedQuantity);
               setData(prevData =>
                 prevData.map(d =>
@@ -284,7 +290,7 @@ const ItemList = ({
             placeholder="Total"
             value={String(totalCost)}
             keyboardType="numeric"
-            editable={false} // Make it non-editable
+            editable={false}
           />
         </View>
         {/* <CostSummary totalProjectCost={totalProjectCost} /> */}

@@ -36,7 +36,8 @@ const slice = createSlice({
     },
 
     setNewBidData(state, action) {
-      state.bids = state.bids.concat(action.payload);
+      // state.bids = state.bids.concat(action.payload);
+      state.bids = [...state.bids, ...action.payload];
     },
 
     setTotalPages(state, action) {
@@ -198,14 +199,14 @@ export const getBids = (page, search) => async dispatch => {
   }
   try {
     const response = await getRequest({
-      endpoint: `${API_ENDPOINTS.bid.getBids}?pageno=${page}&search=${search}`,
+      endpoint: `${API_ENDPOINTS.bid.getBids}?page=${page}&search=${search}`,
     });
-
+    const newBids = response?.data?.bids || [];
     if (page === 1) {
-      dispatch(actions.setBidData(response?.data?.bids));
+      dispatch(actions.setBidData(newBids));
       dispatch(actions.setTotalPages(response?.data?.total_pages));
-    } else if (page > 1) {
-      dispatch(actions.setNewBidData(response?.data?.bids));
+    } else {
+      dispatch(actions.setNewBidData(newBids));
     }
     dispatch(actions.setIsLoading(false));
     return response;

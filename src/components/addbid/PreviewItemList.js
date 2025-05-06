@@ -8,8 +8,8 @@ const PreviewItemList = ({item}) => {
   const totalCost = item?.unitCost || 0 * item?.quantity || 0;
 
   return (
-    <View key={item?._id} style={styles.itemContainer}>
-      <View style={styles.leftIndicator}></View>
+    <View key={item?._id} style={[styles.itemContainer, {marginRight: 15}]}>
+      <View style={styles.leftIndicator} />
 
       <View style={styles.itemDetails}>
         <View>
@@ -37,20 +37,38 @@ const PreviewItemList = ({item}) => {
 
       <View style={styles.inputsContainer}>
         <TextInput
-          style={styles.textinput}
+          style={{
+            borderRadius: 10,
+            borderColor: '#0000001A',
+            borderWidth: 1,
+            paddingVertical: 5,
+            paddingHorizontal: 10
+          }}
           editable={false}
           placeholder="Unit cost"
           placeholderTextColor="#CCCCCC"
           value={String(item?.unitCost || 0)}
         />
         <TextInput
-          style={styles.textinput}
+          style={{
+            borderRadius: 10,
+            borderColor: '#0000001A',
+            borderWidth: 1,
+            paddingVertical: 5,
+            paddingHorizontal: 10
+          }}
           editable={false}
           placeholder="Quantity"
           value={String(item?.quantity || 0)}
         />
         <TextInput
-          style={styles.textinput}
+          style={{
+            borderRadius: 10,
+            borderColor: '#0000001A',
+            borderWidth: 1,
+            paddingVertical: 5,
+            paddingHorizontal: 10
+          }}
           placeholder="Total"
           value={String(totalCost)}
           editable={false}

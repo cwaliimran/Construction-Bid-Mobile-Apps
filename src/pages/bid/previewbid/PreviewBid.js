@@ -80,6 +80,7 @@ const PreviewBid = ({navigation, route}) => {
       </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled
         style={{marginHorizontal: 15}}>
         <Text style={styles.heading}>Address</Text>
         <Text style={styles.detailText}>
@@ -125,7 +126,6 @@ const PreviewBid = ({navigation, route}) => {
           <>
             <Text style={styles.heading}>Plumbing</Text>
             <FlatList
-              style={{flexGrow: 1}}
               data={bidData?.sections['678b5db2713248c7aca857bf']}
               horizontal
               renderItem={({item}) => <PreviewItemList item={item} />}
@@ -137,7 +137,6 @@ const PreviewBid = ({navigation, route}) => {
           <>
             <Text style={styles.heading}>HVAC</Text>
             <FlatList
-              style={{flexGrow: 1}}
               data={bidData?.sections['678b5db7713248c7aca857c0']}
               horizontal
               renderItem={({item}) => <PreviewItemList item={item} />}
@@ -149,7 +148,6 @@ const PreviewBid = ({navigation, route}) => {
           <>
             <Text style={styles.heading}>Electric</Text>
             <FlatList
-              style={{flexGrow: 1}}
               data={bidData?.sections['678b5dc2713248c7aca857c1']}
               horizontal
               renderItem={({item}) => <PreviewItemList item={item} />}
@@ -161,7 +159,6 @@ const PreviewBid = ({navigation, route}) => {
           <>
             <Text style={styles.heading}>General</Text>
             <FlatList
-              style={{flexGrow: 1}}
               data={bidData?.sections['678b5dc8713248c7aca857c2']}
               horizontal
               renderItem={({item}) => <PreviewItemList item={item} />}
@@ -173,7 +170,6 @@ const PreviewBid = ({navigation, route}) => {
           <>
             <Text style={styles.heading}>Misc Work</Text>
             <FlatList
-              style={{flexGrow: 1}}
               data={bidData?.sections['678b5de1713248c7aca857c3']}
               horizontal
               renderItem={({item}) => <PreviewItemList item={item} />}
