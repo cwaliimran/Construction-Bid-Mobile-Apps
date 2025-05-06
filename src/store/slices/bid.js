@@ -406,6 +406,8 @@ export const addItem = payload => async dispatch => {
       endpoint: `${API_ENDPOINTS.bid.addItem}`,
       payload: payload,
     });
+    console.log(response?.data?.itemInformation);
+
     dispatch(actions.setIsLoading(false));
     dispatch(actions.setAddNewItemData(response?.data?.itemInformation));
     return response;

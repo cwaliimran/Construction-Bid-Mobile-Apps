@@ -19,7 +19,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import LoaderKit from 'react-native-loader-kit';
 
 // Import Components
-import {getBidGeneralItem} from '../../store/slices/bid';
+import {emptyAddItem, getBidGeneralItem} from '../../store/slices/bid';
 import ActivityIndicator from '../modal/ActivityIndicator';
 import ItemList from './ItemList';
 import Toast from 'react-native-toast-message';
@@ -59,6 +59,7 @@ const BidItemStepGeneral = ({
       const parentData = {[sectionId]: data};
       handleData(parentData);
     }
+    dispatch(emptyAddItem());
   }, [data]);
 
   const fetchData = () => {

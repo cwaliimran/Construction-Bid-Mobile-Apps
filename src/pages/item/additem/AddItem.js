@@ -242,8 +242,8 @@ const AddItem = ({route}) => {
           useEffect(() => {
             if (item) {
               setFieldValue('itemName', item?.itemName);
-              setFieldValue('sku', item?.hdSku);
-              setFieldValue('brand', item?.brand);
+              setFieldValue('sku', item?.hdSku || '');
+              setFieldValue('brand', item?.brand || '');
               setFieldValue('unitCost', item?.unitCost);
               setFieldValue('quantity', item?.quantity);
               setFieldValue('completionStatus', item?.completionStatus);

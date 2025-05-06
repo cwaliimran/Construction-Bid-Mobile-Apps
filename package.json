@@ -11,6 +11,7 @@
     "simulator": "npm run ios -- --simulator='iPhone SE (3rd generation)'",
     "bigIos": "npm run ios -- --simulator='iPhone 15 Pro Max'",
     "apk": "cd android && ./gradlew assembleRelease && cd ..",
+    "apk2": "cd android && ./gradlew app:assembleRelease && cd ..",
     "abb": "cd android && ./gradlew bundleRelease && cd ..",
     "clean": "cd android && ./gradlew clean && cd ..",
     "info": "cd android && ./gradlew signingReport && cd ..",

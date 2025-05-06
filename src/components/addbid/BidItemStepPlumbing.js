@@ -19,7 +19,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import LoaderKit from 'react-native-loader-kit';
 
 // Import Components
-import {getBidPlumbingItem} from '../../store/slices/bid';
+import {emptyAddItem, getBidPlumbingItem} from '../../store/slices/bid';
 import ActivityIndicator from '../modal/ActivityIndicator';
 import ItemList from './ItemList';
 import Toast from 'react-native-toast-message';
@@ -47,6 +47,7 @@ const BidItemStepOne = ({
   useEffect(() => {
     if (addNewItem && addNewItem.length > 0) {
       const newData = addNewItem.filter(i => i.sectionId === sectionId);
+      console.log(addNewItem);
 
       if (newData.length > 0) {
         setData(prevData => [...prevData, ...newData]);
@@ -59,6 +60,7 @@ const BidItemStepOne = ({
       const parentData = {[sectionId]: data};
       handleData(parentData);
     }
+    dispatch(emptyAddItem());
   }, [data]);
 
   const fetchData = () => {

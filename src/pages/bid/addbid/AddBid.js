@@ -303,12 +303,12 @@ const AddBid = ({route}) => {
         </TouchableOpacity>
         {step !== 1 && step !== 2 && (
           <TouchableOpacity
-            onPress={() =>
+            onPress={() => {
               navigation.navigate('AddItem', {
                 sectionId: currentSectionId,
                 currentSection: currentSection,
-              })
-            }
+              });
+            }}
             style={styles.addItemButton}
             disabled={isLoading}>
             {/* <View style={styles.leftIndicatorBlue}></View> */}
